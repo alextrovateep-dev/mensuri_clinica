@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VitaClinic — Painel Clínico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple:       #7c3aed;
+    --purple-light: #f5f3ff;
+    --purple-mid:   #c4b5fd;
+    --red:          #dc2626;
+    --red-light:    #fef2f2;
+    --amber:        #d97706;
+    --amber-light:  #fffbeb;
+    --green:        #16a34a;
+    --green-light:  #f0fdf4;
+    --blue:         #2563eb;
+    --blue-light:   #eff6ff;
+    --bg:           #f8f7fc;
+    --white:        #ffffff;
+    --text:         #111827;
+    --muted:        #6b7280;
+    --border:       #e5e7eb;
+    --radius:       12px;
+    --sidebar:      220px;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar); background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+    padding: 20px 0 16px; position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-logo { padding: 0 16px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .logo-name { font-size: 15px; font-weight: 600; color: var(--purple); }
+  .logo-sub  { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+  .nav-section-label {
+    font-size: 9px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 16px 6px;
+  }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 16px; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer; border: none;
+    background: none; width: 100%; text-align: left; position: relative; transition: background 0.12s;
+  }
+  .nav-link:hover { background: var(--bg); color: var(--text); }
+  .nav-link.active { background: var(--purple-light); color: var(--purple); font-weight: 600; }
+  .nav-link.active::before {
+    content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+    width: 3px; background: var(--purple); border-radius: 0 3px 3px 0;
+  }
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+  .nav-badge {
+    margin-left: auto; background: var(--red); color: white;
+    font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px;
+  }
+  .nav-badge.amber { background: var(--amber); }
+  .nav-badge.blue  { background: var(--blue); }
+  .sidebar-profile {
+    margin-top: auto; padding: 12px 16px 0; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .profile-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--purple-light); border: 2px solid var(--purple-mid);
+    display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+  }
+  .profile-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .profile-crm  { font-size: 10px; color: var(--muted); }
+
+  /* MAIN */
+  .main { flex: 1; overflow-x: hidden; display: flex; flex-direction: column; min-width: 0; }
+  .topbar {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; display: flex; justify-content: space-between;
+    align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .topbar-date  { font-size: 11px; color: var(--muted); }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px;
+  }
+  .search-box input {
+    border: none; background: none; font-size: 12px; color: var(--text);
+    outline: none; width: 180px; font-family: 'DM Sans', sans-serif;
+  }
+  .search-icon { font-size: 12px; color: var(--muted); }
+  .notif-btn {
+    width: 34px; height: 34px; border-radius: 8px; background: var(--bg);
+    border: 1px solid var(--border); display: flex; align-items: center;
+    justify-content: center; font-size: 16px; cursor: pointer; position: relative;
+  }
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--red); border: 1.5px solid white;
+  }
+  .content { padding: 20px 24px; flex: 1; }
+
+  /* PAGE */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* METRICS */
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric-card {
+    background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden;
+  }
+  .metric-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .metric-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .metric-sub   { font-size: 11px; color: var(--muted); }
+  .metric-sub .up   { color: var(--red); }
+  .metric-sub .down { color: var(--green); }
+
+  /* GRID */
+  .main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+  .panel { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+  .panel-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .panel-title { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 4px; }
+  .filter-tab {
+    font-size: 11px; font-weight: 500; padding: 5px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: none; cursor: pointer; color: var(--muted); transition: all 0.12s;
+  }
+  .filter-tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+  /* PATIENT TABLE */
+  .patient-table { width: 100%; }
+  .patient-row {
+    display: grid; grid-template-columns: 28px 1fr 90px 80px 80px 70px 60px;
+    align-items: center; gap: 10px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s;
+  }
+  .patient-row:last-child { border-bottom: none; }
+  .patient-row:hover { background: var(--bg); }
+  .patient-row.header-row {
+    background: var(--bg); cursor: default; padding: 8px 16px; border-bottom: 1px solid var(--border);
+  }
+  .patient-row.header-row:hover { background: var(--bg); }
+  .col-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .severity-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .severity-dot.red   { background: var(--red);   box-shadow: 0 0 0 3px #fecaca; }
+  .severity-dot.amber { background: var(--amber); box-shadow: 0 0 0 3px #fde68a; }
+  .severity-dot.green { background: var(--green); box-shadow: 0 0 0 3px #bbf7d0; }
+
+  .patient-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .patient-age  { font-size: 10px; color: var(--muted); }
+
+  .vital-badge {
+    font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 6px; display: inline-block;
+  }
+  .vital-badge.red   { background: var(--red-light);   color: var(--red); }
+  .vital-badge.amber { background: var(--amber-light); color: var(--amber); }
+  .vital-badge.green { background: var(--green-light); color: var(--green); }
+
+  .med-status { font-size: 11px; color: var(--muted); }
+  .risk-pill  { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; text-align: center; }
+  .risk-pill.critico { background: var(--red-light);   color: var(--red); }
+  .risk-pill.atencao { background: var(--amber-light); color: var(--amber); }
+  .risk-pill.estavel { background: var(--green-light); color: var(--green); }
+  .action-btn { font-size: 11px; color: var(--purple); font-weight: 500; border: none; background: none; cursor: pointer; padding: 4px 0; }
+
+  /* SIDE */
+  .side-col { display: flex; flex-direction: column; gap: 14px; }
+  .alert-item {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: flex-start; transition: background 0.1s;
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-item:hover { background: var(--bg); }
+  .alert-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+  }
+  .alert-icon.red   { background: var(--red-light); }
+  .alert-icon.amber { background: var(--amber-light); }
+  .alert-msg     { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.4; }
+  .alert-patient { font-size: 11px; color: var(--purple); font-weight: 500; }
+  .alert-time    { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .schedule-item {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center; cursor: pointer; transition: background 0.1s;
+  }
+  .schedule-item:last-child { border-bottom: none; }
+  .schedule-item:hover { background: var(--bg); }
+  .schedule-time { font-size: 12px; font-weight: 600; color: var(--purple); min-width: 38px; font-family: 'DM Mono', monospace; }
+  .schedule-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .schedule-type { font-size: 10px; color: var(--muted); }
+  .schedule-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-left: auto; }
+  .empty-state   { padding: 32px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  /* ── PÁGINA PACIENTES (detalhe) ── */
+  .patient-detail-header {
+    display: flex; align-items: flex-start; gap: 16px; padding: 20px;
+    background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 16px;
+  }
+  .patient-avatar-big {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--purple-light);
+    border: 2px solid var(--purple-mid); display: flex; align-items: center;
+    justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .patient-detail-name { font-size: 18px; font-weight: 600; color: var(--text); }
+  .patient-detail-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .patient-detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .mini-metric {
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .mini-metric-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .mini-metric-value { font-size: 20px; font-weight: 600; color: var(--text); }
+  .mini-metric-sub   { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .timeline-list { list-style: none; }
+  .timeline-item {
+    display: flex; gap: 12px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); font-size: 12px;
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple-mid); flex-shrink: 0; margin-top: 4px; }
+  .timeline-dot.red { background: var(--red); }
+  .timeline-dot.amber { background: var(--amber); }
+  .timeline-dot.green { background: var(--green); }
+  .timeline-time { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); min-width: 50px; }
+  .timeline-msg  { color: var(--text); }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── PÁGINA ALERTAS ── */
+  .alert-page-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 10px; transition: box-shadow 0.15s; cursor: pointer;
+  }
+  .alert-page-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .alert-page-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .alert-page-icon.red   { background: var(--red-light); }
+  .alert-page-icon.amber { background: var(--amber-light); }
+  .alert-page-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .alert-page-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .alert-page-badge { margin-left: auto; flex-shrink: 0; }
+  .dismiss-btn { font-size: 11px; color: var(--muted); border: 1px solid var(--border); background: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; transition: all 0.1s; }
+  .dismiss-btn:hover { background: var(--bg); color: var(--text); }
+
+  /* ── PÁGINA AGENDA ── */
+  .agenda-day-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin: 18px 0 8px; }
+  .agenda-card {
+    display: flex; gap: 14px; align-items: center;
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 8px; cursor: pointer; transition: box-shadow 0.12s;
+  }
+  .agenda-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+  .agenda-card-time { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--purple); min-width: 44px; }
+  .agenda-card-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .agenda-card-type { font-size: 11px; color: var(--muted); }
+  .agenda-card-badge { margin-left: auto; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+  .agenda-card-badge.realizado { background: var(--green-light); color: var(--green); }
+  .agenda-card-badge.andamento { background: var(--amber-light); color: var(--amber); }
+  .agenda-card-badge.agendado  { background: var(--blue-light);  color: var(--blue); }
+
+  /* ── PÁGINA RELATÓRIOS ── */
+  .relat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .relat-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; cursor: pointer; transition: box-shadow 0.12s;
+  }
+  .relat-card:hover { box-shadow: 0 3px 14px rgba(0,0,0,0.08); }
+  .relat-card-icon { font-size: 22px; margin-bottom: 10px; }
+  .relat-card-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .relat-card-sub   { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .relat-card-date  { font-size: 10px; color: var(--purple); margin-top: 8px; font-weight: 500; }
+
+  .chart-bar-container { padding: 16px; }
+  .chart-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .chart-bar-label { font-size: 11px; color: var(--muted); min-width: 110px; text-align: right; }
+  .chart-bar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+  .chart-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .chart-bar-val   { font-size: 11px; font-weight: 600; color: var(--text); min-width: 30px; }
+
+  /* ── PÁGINA EXAMES ── */
+  .exam-row {
+    display: grid; grid-template-columns: 1fr 120px 90px 90px 80px;
+    align-items: center; gap: 10px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s;
+  }
+  .exam-row:hover { background: var(--bg); }
+  .exam-row.header { background: var(--bg); cursor: default; }
+  .exam-row.header:hover { background: var(--bg); }
+  .exam-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .exam-pat  { font-size: 11px; color: var(--muted); }
+  .exam-status-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .exam-status-badge.pendente  { background: var(--amber-light); color: var(--amber); }
+  .exam-status-badge.concluido { background: var(--green-light); color: var(--green); }
+  .exam-status-badge.urgente   { background: var(--red-light);   color: var(--red); }
+
+  /* ── PÁGINA MEDICAÇÕES ── */
+  .med-row {
+    display: grid; grid-template-columns: 1fr 100px 90px 90px 80px;
+    align-items: center; gap: 10px; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer;
+  }
+  .med-row:hover { background: var(--bg); }
+  .med-row.header { background: var(--bg); cursor: default; }
+  .med-row.header:hover { background: var(--bg); }
+  .estoque-bar { width: 70px; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; margin-top: 3px; }
+  .estoque-fill { height: 100%; border-radius: 3px; }
+  .estoque-fill.ok      { background: var(--green); }
+  .estoque-fill.baixo   { background: var(--amber); }
+  .estoque-fill.critico { background: var(--red); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 16px; padding: 24px;
+    max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .modal-title  { font-size: 16px; font-weight: 600; color: var(--text); }
+  .modal-close  { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; }
+  .modal-section-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin: 14px 0 8px; }
+  .modal-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row-label { font-size: 12px; color: var(--muted); }
+  .modal-row-value { font-size: 12px; font-weight: 500; color: var(--text); }
+  .modal-btn {
+    display: inline-block; margin-top: 16px; padding: 10px 20px;
+    background: var(--purple); color: white; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.12s;
+  }
+  .modal-btn:hover { opacity: 0.88; }
+  .modal-btn.outline { background: none; color: var(--purple); border: 1px solid var(--purple); margin-left: 8px; }
+
+  /* ── NOTIF PANEL ── */
+  .notif-panel {
+    display: none; position: fixed; top: 56px; right: 16px;
+    width: 320px; background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,0.12); z-index: 50; overflow: hidden;
+  }
+  .notif-panel.open { display: block; }
+  .notif-panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .notif-panel-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+  .notif-panel-item { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; cursor: pointer; transition: background 0.1s; }
+  .notif-panel-item:hover { background: var(--bg); }
+  .notif-panel-item:last-child { border-bottom: none; }
+  .notif-panel-icon { font-size: 16px; flex-shrink: 0; }
+  .notif-panel-msg  { font-size: 12px; color: var(--text); line-height: 1.4; }
+  .notif-panel-time { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); }
+    .patient-row { grid-template-columns: 20px 1fr 70px 60px 50px; }
+    .col-med, .col-last { display: none; }
+    .topbar { padding: 10px 14px; }
+    .content { padding: 14px; }
+    .search-box input { width: 100px; }
+    .patient-detail-grid, .relat-grid { grid-template-columns: 1fr 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .metrics-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-value { font-size: 20px; }
+    .patient-row { grid-template-columns: 20px 1fr 60px 50px; }
+    .patient-detail-grid { grid-template-columns: 1fr; }
+    .relat-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Visão geral da carteira</div>
+        <div class="topbar-date" id="topbarDate"></div>
+      </div>
+      <div class="topbar-right">
+        <div class="search-box" id="searchBoxWrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Buscar paciente..." id="searchInput">
+        </div>
+        <div class="notif-btn" id="notifBtn">🔔<div class="notif-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- NOTIF PANEL -->
+    <div class="notif-panel" id="notifPanel">
+      <div class="notif-panel-header">
+        Notificações <button class="notif-panel-close" onclick="toggleNotif()">✕</button>
+      </div>
+      <div id="notifList"></div>
+    </div>
+
+    <div class="content">
+      <!-- PAGE: DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="metrics-row" id="metricsRow"></div>
+        <div class="main-grid">
+          <div class="panel" id="patientPanel"></div>
+          <div class="side-col" id="sideCol"></div>
+        </div>
+      </div>
+
+      <!-- PAGE: PACIENTES -->
+      <div class="page" id="page-pacientes">
+        <div class="metrics-row" id="metricsRowPac"></div>
+        <div class="panel" id="patientPanelFull"></div>
+      </div>
+
+      <!-- PAGE: ALERTAS -->
+      <div class="page" id="page-alertas">
+        <div id="alertasPage"></div>
+      </div>
+
+      <!-- PAGE: AGENDA -->
+      <div class="page" id="page-agenda">
+        <div id="agendaPage"></div>
+      </div>
+
+      <!-- PAGE: RELATORIOS -->
+      <div class="page" id="page-relatorios">
+        <div id="relatoriosPage"></div>
+      </div>
+
+      <!-- PAGE: EXAMES -->
+      <div class="page" id="page-exames">
+        <div id="examesPage"></div>
+      </div>
+
+      <!-- PAGE: MEDICACOES -->
+      <div class="page" id="page-medicacoes">
+        <div id="medicacoesPage"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL PACIENTE -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MOCK DATA
+═══════════════════════════════════ -->
+<script>
+
+const medico = {
+  nome:          'Dr. Carlos Mendes',
+  crm:           'CRM 54.321-SP',
+  especialidade: 'Cardiologia',
+  avatar:        '👨‍⚕️',
+  clinica:       'VitaClinic',
+};
+
+const pacientes = [
+  // Críticos
+  { id:1,  nome:'Maria Aparecida Santos',   idade:68, sexo:'F', condicoes:'Hipertensão, Diabetes',   pressao:'178/102', paColor:'red',   medicacao:'3 doses perdidas',   ultimoReg:'Há 14h',   status:'critico', peso:'72kg', altura:'1,58m', glicemia:'248 mg/dL', saturacao:'96%', fc:'98 bpm', telefone:'(11) 99234-5678', email:'m.aparecida@email.com', meds:['Losartana 50mg','Metformina 500mg','AAS 100mg'], ultimaConsulta:'18/03/2025', proximaConsulta:'07/04/2025' },
+  { id:2,  nome:'Roberto Ferreira Lima',    idade:74, sexo:'M', condicoes:'ICC, Fibrilação Atrial',  pressao:'162/98',  paColor:'red',   medicacao:'Estoque zerado',     ultimoReg:'Há 6h',    status:'critico', peso:'68kg', altura:'1,72m', glicemia:'112 mg/dL', saturacao:'94%', fc:'104 bpm', telefone:'(11) 98345-6789', email:'r.ferreira@email.com', meds:['Furosemida 40mg','Warfarina 5mg','Digoxina 0,25mg'], ultimaConsulta:'01/04/2025', proximaConsulta:'08/04/2025' },
+  { id:3,  nome:'Antônia Gonçalves Ramos',  idade:81, sexo:'F', condicoes:'Diabetes Tipo 2',         pressao:'138/88',  paColor:'amber', medicacao:'Glicemia 310 mg/dL', ultimoReg:'Há 2h',    status:'critico', peso:'65kg', altura:'1,55m', glicemia:'310 mg/dL', saturacao:'97%', fc:'88 bpm', telefone:'(11) 97456-7890', email:'a.ramos@email.com', meds:['Glibenclamida 5mg','Metformina 850mg'], ultimaConsulta:'25/03/2025', proximaConsulta:'10/04/2025' },
+  { id:4,  nome:'Severino Costa Filho',     idade:77, sexo:'M', condicoes:'DPOC, Hipertensão',       pressao:'158/96',  paColor:'red',   medicacao:'Broncodilatador em falta', ultimoReg:'Há 9h', status:'critico', peso:'61kg', altura:'1,68m', glicemia:'98 mg/dL', saturacao:'91%', fc:'92 bpm', telefone:'(11) 96567-8901', email:'severino.costa@email.com', meds:['Salbutamol','Enalapril 10mg','Ipratrópio'], ultimaConsulta:'28/03/2025', proximaConsulta:'06/04/2025' },
+  // Atenção
+  { id:5,  nome:'João da Silva',            idade:39, sexo:'M', condicoes:'Hipertensão',             pressao:'132/88',  paColor:'amber', medicacao:'Estoque baixo',      ultimoReg:'Há 1h',    status:'atencao', peso:'82kg', altura:'1,75m', glicemia:'95 mg/dL', saturacao:'99%', fc:'76 bpm', telefone:'(11) 95678-9012', email:'joao.silva@email.com', meds:['Losartana 50mg'], ultimaConsulta:'31/03/2025', proximaConsulta:'30/04/2025' },
+  { id:6,  nome:'Fernanda Lima Costa',      idade:55, sexo:'F', condicoes:'Hipotireoidismo',         pressao:'118/76',  paColor:'green', medicacao:'1 dose atrasada',    ultimoReg:'Há 3h',    status:'atencao', peso:'64kg', altura:'1,62m', glicemia:'88 mg/dL', saturacao:'99%', fc:'72 bpm', telefone:'(11) 94789-0123', email:'fernanda.lima@email.com', meds:['Levotiroxina 75mcg'], ultimaConsulta:'20/03/2025', proximaConsulta:'20/04/2025' },
+  { id:7,  nome:'Carlos Eduardo Matos',     idade:62, sexo:'M', condicoes:'Dislipidemia',            pressao:'124/80',  paColor:'green', medicacao:'Colesterol ↑',       ultimoReg:'Há 5h',    status:'atencao', peso:'88kg', altura:'1,78m', glicemia:'102 mg/dL', saturacao:'98%', fc:'68 bpm', telefone:'(11) 93890-1234', email:'carlos.matos@email.com', meds:['Atorvastatina 20mg','AAS 100mg'], ultimaConsulta:'22/03/2025', proximaConsulta:'22/04/2025' },
+  { id:8,  nome:'Benedita Rocha Alves',     idade:71, sexo:'F', condicoes:'Arritmia, HAS',           pressao:'140/90',  paColor:'amber', medicacao:'Exame pendente',     ultimoReg:'Há 8h',    status:'atencao', peso:'58kg', altura:'1,57m', glicemia:'105 mg/dL', saturacao:'97%', fc:'82 bpm', telefone:'(11) 92901-2345', email:'benedita.alves@email.com', meds:['Amiodarona 200mg','Atenolol 25mg','Hidroclorotiazida 25mg'], ultimaConsulta:'15/03/2025', proximaConsulta:'15/04/2025' },
+  { id:9,  nome:'Hélio Nascimento Jr.',     idade:48, sexo:'M', condicoes:'Diabetes Tipo 1',         pressao:'128/84',  paColor:'amber', medicacao:'Insulina irregular', ultimoReg:'Há 4h',    status:'atencao', peso:'74kg', altura:'1,80m', glicemia:'187 mg/dL', saturacao:'98%', fc:'80 bpm', telefone:'(11) 91012-3456', email:'helio.nascimento@email.com', meds:['Insulina Glargina','Insulina Regular','Metformina 500mg'], ultimaConsulta:'29/03/2025', proximaConsulta:'12/04/2025' },
+  { id:10, nome:'Marlene Souza Barbosa',    idade:59, sexo:'F', condicoes:'Insuficiência Renal Cr.', pressao:'148/92',  paColor:'amber', medicacao:'Creatinina ↑',       ultimoReg:'Há 6h',    status:'atencao', peso:'70kg', altura:'1,60m', glicemia:'118 mg/dL', saturacao:'97%', fc:'75 bpm', telefone:'(11) 90123-4567', email:'marlene.barbosa@email.com', meds:['Bicarbonato de sódio','Eritropoetina','Furosemida 40mg'], ultimaConsulta:'02/04/2025', proximaConsulta:'09/04/2025' },
+  // Estáveis
+  { id:11, nome:'Patricia Helena Souza',    idade:44, sexo:'F', condicoes:'Acompanhamento geral',    pressao:'120/79',  paColor:'green', medicacao:'100% adesão',        ultimoReg:'Há 30min', status:'estavel', peso:'60kg', altura:'1,65m', glicemia:'88 mg/dL', saturacao:'99%', fc:'66 bpm', telefone:'(11) 99234-5001', email:'patricia.souza@email.com', meds:['Vitamina D','Ácido fólico'], ultimaConsulta:'03/04/2025', proximaConsulta:'03/07/2025' },
+  { id:12, nome:'Marcos Vinícius Teixeira', idade:51, sexo:'M', condicoes:'Pós-cirúrgico cardíaco',  pressao:'116/74',  paColor:'green', medicacao:'Conforme',           ultimoReg:'Há 2h',    status:'estavel', peso:'78kg', altura:'1,76m', glicemia:'92 mg/dL', saturacao:'99%', fc:'62 bpm', telefone:'(11) 98345-5002', email:'marcos.teixeira@email.com', meds:['AAS 100mg','Clopidogrel 75mg','Atenolol 25mg'], ultimaConsulta:'01/04/2025', proximaConsulta:'01/05/2025' },
+  { id:13, nome:'Luísa Cardoso Neves',      idade:33, sexo:'F', condicoes:'Gestante 28 semanas',     pressao:'110/70',  paColor:'green', medicacao:'Supl. em dia',       ultimoReg:'Há 45min', status:'estavel', peso:'68kg', altura:'1,63m', glicemia:'82 mg/dL', saturacao:'99%', fc:'78 bpm', telefone:'(11) 97456-5003', email:'luisa.neves@email.com', meds:['Ácido fólico','Sulfato ferroso','Vitamina D'], ultimaConsulta:'04/04/2025', proximaConsulta:'18/04/2025' },
+  { id:14, nome:'Edilson Batista Moreira',  idade:57, sexo:'M', condicoes:'Cardiopatia leve',        pressao:'122/78',  paColor:'green', medicacao:'Conforme',           ultimoReg:'Há 1h',    status:'estavel', peso:'80kg', altura:'1,73m', glicemia:'98 mg/dL', saturacao:'98%', fc:'70 bpm', telefone:'(11) 96567-5004', email:'edilson.moreira@email.com', meds:['Atenolol 25mg','AAS 100mg'], ultimaConsulta:'02/04/2025', proximaConsulta:'02/05/2025' },
+  { id:15, nome:'Raimunda Ferreira Castro', idade:66, sexo:'F', condicoes:'Osteoporose',             pressao:'118/76',  paColor:'green', medicacao:'Conforme',           ultimoReg:'Há 3h',    status:'estavel', peso:'55kg', altura:'1,54m', glicemia:'90 mg/dL', saturacao:'98%', fc:'68 bpm', telefone:'(11) 95678-5005', email:'raimunda.castro@email.com', meds:['Carbonato de cálcio','Vitamina D','Alendronato'], ultimaConsulta:'26/03/2025', proximaConsulta:'26/06/2025' },
+  { id:16, nome:'Gilson Pereira Andrade',   idade:43, sexo:'M', condicoes:'Acompanhamento',         pressao:'120/80',  paColor:'green', medicacao:'100% adesão',        ultimoReg:'Há 1h',    status:'estavel', peso:'75kg', altura:'1,78m', glicemia:'95 mg/dL', saturacao:'99%', fc:'64 bpm', telefone:'(11) 94789-5006', email:'gilson.andrade@email.com', meds:['Losartana 25mg'], ultimaConsulta:'04/04/2025', proximaConsulta:'04/07/2025' },
+  { id:17, nome:'Sueli Aparecida Moura',    idade:49, sexo:'F', condicoes:'Enxaqueca crônica',       pressao:'114/72',  paColor:'green', medicacao:'Conforme',           ultimoReg:'Há 2h',    status:'estavel', peso:'62kg', altura:'1,61m', glicemia:'87 mg/dL', saturacao:'99%', fc:'69 bpm', telefone:'(11) 93890-5007', email:'sueli.moura@email.com', meds:['Topiramato 25mg','Naratriptano'], ultimaConsulta:'30/03/2025', proximaConsulta:'30/05/2025' },
+  { id:18, nome:'Teófilo Braga Martins',    idade:38, sexo:'M', condicoes:'Asma controlada',        pressao:'118/76',  paColor:'green', medicacao:'Conforme',           ultimoReg:'Há 4h',    status:'estavel', peso:'70kg', altura:'1,74m', glicemia:'91 mg/dL', saturacao:'98%', fc:'71 bpm', telefone:'(11) 92901-5008', email:'teofilo.martins@email.com', meds:['Budesonida 200mcg','Salbutamol SOS'], ultimaConsulta:'27/03/2025', proximaConsulta:'27/06/2025' },
+];
+
+const alertas = [
+  { id:1, icon:'🚨', severity:'red',   msg:'Pressão arterial 178/102 mmHg — muito elevada',  paciente:'Maria Aparecida Santos',   detalhe:'Há 14 horas sem novo registro', ativo:true },
+  { id:2, icon:'💊', severity:'red',   msg:'Estoque de Furosemida zerado',                    paciente:'Roberto Ferreira Lima',    detalhe:'Crítico — ICC em tratamento', ativo:true },
+  { id:3, icon:'🩺', severity:'red',   msg:'Glicemia 310 mg/dL — fora do controle',           paciente:'Antônia Gonçalves Ramos',  detalhe:'Registrado às 07:22', ativo:true },
+  { id:4, icon:'😮‍💨', severity:'red', msg:'Saturação O₂ 91% — abaixo do limite',            paciente:'Severino Costa Filho',     detalhe:'Monitorar com urgência', ativo:true },
+  { id:5, icon:'⚠️', severity:'amber', msg:'Losartana com apenas 3 comp. restantes',          paciente:'João da Silva',            detalhe:'Renovar receita até 10/04', ativo:true },
+  { id:6, icon:'😴', severity:'amber', msg:'Sono abaixo de 5h por 3 dias seguidos',           paciente:'Fernanda Lima Costa',      detalhe:'Pode afetar controle hormonal', ativo:true },
+  { id:7, icon:'💉', severity:'amber', msg:'Insulina irregular há 2 dias',                    paciente:'Hélio Nascimento Jr.',     detalhe:'Glicemia instável — revisar plano', ativo:true },
+  { id:8, icon:'📋', severity:'amber', msg:'ECG solicitado há 5 dias sem resultado',          paciente:'Benedita Rocha Alves',     detalhe:'Exame pendente na clínica', ativo:true },
+  { id:9, icon:'🔬', severity:'amber', msg:'Creatinina acima de 2,4 mg/dL',                  paciente:'Marlene Souza Barbosa',    detalhe:'Necessita reavaliação nephro', ativo:true },
+  { id:10,icon:'🩸', severity:'amber', msg:'Hemoglobina 9,2 g/dL — anemia moderada',         paciente:'Raimunda Ferreira Castro', detalhe:'Registrado em exame de 02/04', ativo:true },
+];
+
+const agendaHoje = [
+  { hora:'08:00', paciente:'Maria Aparecida Santos',   tipo:'Retorno urgente · Presencial',  dotColor:'var(--red)',    badge:'andamento' },
+  { hora:'09:00', paciente:'Severino Costa Filho',     tipo:'Avaliação DPOC · Presencial',   dotColor:'var(--amber)',  badge:'andamento' },
+  { hora:'10:00', paciente:'Carlos Eduardo Matos',     tipo:'Avaliação · Teleconsulta',      dotColor:'var(--amber)',  badge:'andamento' },
+  { hora:'11:30', paciente:'Luísa Cardoso Neves',      tipo:'Pré-natal · Presencial',        dotColor:'var(--green)',  badge:'realizado' },
+  { hora:'14:00', paciente:'João da Silva',             tipo:'Retorno · Presencial',          dotColor:'var(--border)', badge:'agendado' },
+  { hora:'15:00', paciente:'Hélio Nascimento Jr.',      tipo:'Ajuste insulina · Teleconsulta',dotColor:'var(--border)', badge:'agendado' },
+  { hora:'15:30', paciente:'Edilson Batista Moreira',  tipo:'Rotina · Teleconsulta',         dotColor:'var(--border)', badge:'agendado' },
+  { hora:'16:30', paciente:'Patricia Helena Souza',    tipo:'Check-up · Teleconsulta',       dotColor:'var(--border)', badge:'agendado' },
+  { hora:'17:00', paciente:'Marlene Souza Barbosa',    tipo:'Exames · Presencial',           dotColor:'var(--border)', badge:'agendado' },
+];
+
+const agendaAmanha = [
+  { hora:'08:30', paciente:'Antônia Gonçalves Ramos',  tipo:'Controle glicemia · Presencial', dotColor:'var(--border)', badge:'agendado' },
+  { hora:'10:00', paciente:'Marcos Vinícius Teixeira', tipo:'Pós-op 30 dias · Presencial',    dotColor:'var(--border)', badge:'agendado' },
+  { hora:'11:00', paciente:'Roberto Ferreira Lima',    tipo:'Revisão medicação · Presencial', dotColor:'var(--border)', badge:'agendado' },
+  { hora:'14:30', paciente:'Gilson Pereira Andrade',   tipo:'Rotina · Teleconsulta',          dotColor:'var(--border)', badge:'agendado' },
+  { hora:'16:00', paciente:'Sueli Aparecida Moura',    tipo:'Neurologista · Presencial',      dotColor:'var(--border)', badge:'agendado' },
+];
+
+const exames = [
+  { id:1,  nome:'Eletrocardiograma',            paciente:'Benedita Rocha Alves',     data:'01/04/2025', tipo:'Cardiológico',   status:'pendente'  },
+  { id:2,  nome:'Hemograma Completo',           paciente:'Raimunda Ferreira Castro', data:'02/04/2025', tipo:'Laboratorial',   status:'concluido' },
+  { id:3,  nome:'Glicemia em jejum',            paciente:'Antônia Gonçalves Ramos',  data:'06/04/2025', tipo:'Laboratorial',   status:'urgente'   },
+  { id:4,  nome:'Ecocardiograma',               paciente:'Roberto Ferreira Lima',    data:'05/04/2025', tipo:'Imagem',         status:'pendente'  },
+  { id:5,  nome:'Raio-X de Tórax',              paciente:'Severino Costa Filho',     data:'04/04/2025', tipo:'Imagem',         status:'pendente'  },
+  { id:6,  nome:'Função Renal (Creatinina)',    paciente:'Marlene Souza Barbosa',    data:'03/04/2025', tipo:'Laboratorial',   status:'urgente'   },
+  { id:7,  nome:'Perfil Lipídico',              paciente:'Carlos Eduardo Matos',     data:'25/03/2025', tipo:'Laboratorial',   status:'concluido' },
+  { id:8,  nome:'TSH e T4 livre',               paciente:'Fernanda Lima Costa',      data:'28/03/2025', tipo:'Laboratorial',   status:'concluido' },
+  { id:9,  nome:'Ultrassom obstétrico',         paciente:'Luísa Cardoso Neves',      data:'04/04/2025', tipo:'Imagem',         status:'concluido' },
+  { id:10, nome:'Monitorização Holter 24h',     paciente:'Maria Aparecida Santos',   data:'08/04/2025', tipo:'Cardiológico',   status:'pendente'  },
+  { id:11, nome:'Curva glicêmica',              paciente:'Hélio Nascimento Jr.',     data:'07/04/2025', tipo:'Laboratorial',   status:'pendente'  },
+  { id:12, nome:'Densitometria óssea',          paciente:'Raimunda Ferreira Castro', data:'15/04/2025', tipo:'Imagem',         status:'pendente'  },
+];
+
+const medicacoes = [
+  { nome:'Losartana 50mg',     paciente:'Maria Aparecida Santos',   estoque:5,   total:30, status:'critico', proxRenovacao:'08/04/2025' },
+  { nome:'Furosemida 40mg',    paciente:'Roberto Ferreira Lima',    estoque:0,   total:30, status:'critico', proxRenovacao:'06/04/2025' },
+  { nome:'Insulina Glargina',  paciente:'Hélio Nascimento Jr.',     estoque:8,   total:30, status:'baixo',   proxRenovacao:'10/04/2025' },
+  { nome:'Broncodilatador',    paciente:'Severino Costa Filho',     estoque:2,   total:20, status:'critico', proxRenovacao:'07/04/2025' },
+  { nome:'Glibenclamida 5mg',  paciente:'Antônia Gonçalves Ramos',  estoque:12,  total:30, status:'baixo',   proxRenovacao:'14/04/2025' },
+  { nome:'Amiodarona 200mg',   paciente:'Benedita Rocha Alves',     estoque:20,  total:30, status:'ok',      proxRenovacao:'20/04/2025' },
+  { nome:'Atorvastatina 20mg', paciente:'Carlos Eduardo Matos',     estoque:25,  total:30, status:'ok',      proxRenovacao:'25/04/2025' },
+  { nome:'Levotiroxina 75mcg', paciente:'Fernanda Lima Costa',      estoque:18,  total:30, status:'ok',      proxRenovacao:'18/04/2025' },
+  { nome:'Warfarina 5mg',      paciente:'Roberto Ferreira Lima',    estoque:14,  total:30, status:'baixo',   proxRenovacao:'13/04/2025' },
+  { nome:'Metformina 850mg',   paciente:'Antônia Gonçalves Ramos',  estoque:28,  total:30, status:'ok',      proxRenovacao:'30/04/2025' },
+  { nome:'Clopidogrel 75mg',   paciente:'Marcos Vinícius Teixeira', estoque:22,  total:30, status:'ok',      proxRenovacao:'22/04/2025' },
+  { nome:'AAS 100mg',          paciente:'Edilson Batista Moreira',  estoque:30,  total:30, status:'ok',      proxRenovacao:'06/05/2025' },
+];
+
+const navPrincipal = [
+  { icon:'📊', label:'Dashboard',   page:'dashboard',  active:true },
+  { icon:'👥', label:'Pacientes',   page:'pacientes',  badge: pacientes.filter(p=>p.status==='critico').length, badgeColor:'' },
+  { icon:'🔔', label:'Alertas',     page:'alertas',    badge: alertas.filter(a=>a.ativo).length, badgeColor:'amber' },
+  { icon:'📅', label:'Agenda',      page:'agenda' },
+];
+const navAnalise = [
+  { icon:'📈', label:'Relatórios',  page:'relatorios' },
+  { icon:'🧪', label:'Exames',      page:'exames', badge: exames.filter(e=>e.status==='urgente').length, badgeColor:'' },
+  { icon:'💊', label:'Medicações',  page:'medicacoes', badge: medicacoes.filter(m=>m.status==='critico').length, badgeColor:'' },
+];
+const navClinica = [
+  { icon:'⚙️', label:'Configurações', page:'configuracoes' },
+];
+
+const notificacoes = [
+  { icon:'🚨', msg:'Glicemia crítica: Antônia G. Ramos — 310 mg/dL', time:'Há 2h' },
+  { icon:'💊', msg:'Estoque zerado: Furosemida — Roberto F. Lima', time:'Há 4h' },
+  { icon:'📅', msg:'Consulta em 30min: Carlos Eduardo Matos', time:'Às 10:00' },
+  { icon:'🩺', msg:'Exame liberado: TSH de Fernanda Lima Costa', time:'Hoje' },
+  { icon:'⚠️', msg:'Losartana em falta: João da Silva', time:'Ontem' },
+];
+
+</script>
+
+<!-- ═══════════════════════════════════
+     RENDERIZAÇÃO
+═══════════════════════════════════ -->
+<script>
+
+/* ── UTILS ── */
+function dateString() {
+  const d = new Date();
+  const wd  = d.toLocaleDateString('pt-BR', { weekday: 'long' });
+  const day = d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return wd.charAt(0).toUpperCase() + wd.slice(1) + ', ' + day;
+}
+function timeString() {
+  return new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+}
+function calcMetricas() {
+  const total    = pacientes.length;
+  const criticos = pacientes.filter(p => p.status === 'critico').length;
+  const atencao  = pacientes.filter(p => p.status === 'atencao').length;
+  const estaveis = pacientes.filter(p => p.status === 'estavel').length;
+  const pct      = Math.round(estaveis / total * 100);
+  return { total, criticos, atencao, estaveis, pct };
+}
+
+/* ── NAV ── */
+let paginaAtiva = 'dashboard';
+
+function renderSidebar() {
+  const el = document.getElementById('sidebar');
+  const navItem = item => {
+    const badge = item.badge
+      ? `<span class="nav-badge ${item.badgeColor || ''}">${item.badge}</span>` : '';
+    return `<button class="nav-link ${item.page === paginaAtiva ? 'active' : ''}"
+      onclick="navigateTo('${item.page}')">
+      <span class="nav-icon">${item.icon}</span> ${item.label}${badge}
+    </button>`;
+  };
+  el.innerHTML = `
+    <div class="sidebar-logo">
+      <div class="logo-name">${medico.clinica}</div>
+      <div class="logo-sub">Painel Clínico</div>
+    </div>
+    <div class="nav-section-label">Principal</div>
+    ${navPrincipal.map(navItem).join('')}
+    <div class="nav-section-label">Análise</div>
+    ${navAnalise.map(navItem).join('')}
+    <div class="nav-section-label">Clínica</div>
+    ${navClinica.map(navItem).join('')}
+    <div class="sidebar-profile">
+      <div class="profile-avatar">${medico.avatar}</div>
+      <div>
+        <div class="profile-name">${medico.nome}</div>
+        <div class="profile-crm">${medico.crm} · ${medico.especialidade}</div>
+      </div>
+    </div>
+  `;
+}
+
+const pageTitles = {
+  dashboard:      'Visão geral da carteira',
+  pacientes:      'Pacientes',
+  alertas:        'Alertas em tempo real',
+  agenda:         'Agenda',
+  relatorios:     'Relatórios',
+  exames:         'Exames',
+  medicacoes:     'Medicações',
+  configuracoes:  'Configurações',
+};
+
+function navigateTo(page) {
+  paginaAtiva = page;
+  // hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageTitles[page] || page;
+  // show/hide search
+  document.getElementById('searchBoxWrap').style.display =
+    (page === 'dashboard' || page === 'pacientes') ? 'flex' : 'none';
+  renderSidebar();
+  // render page content
+  if (page === 'pacientes')    renderPacientesPage();
+  if (page === 'alertas')      renderAlertasPage();
+  if (page === 'agenda')       renderAgendaPage();
+  if (page === 'relatorios')   renderRelatoriosPage();
+  if (page === 'exames')       renderExamesPage();
+  if (page === 'medicacoes')   renderMedicacoesPage();
+}
+
+/* ── TOPBAR ── */
+function renderTopbarDate() {
+  document.getElementById('topbarDate').textContent =
+    `${dateString()} · Atualizado às ${timeString()}`;
+}
+
+/* ── MÉTRICAS ── */
+function metricsHtml(containerEl) {
+  const m = calcMetricas();
+  containerEl.innerHTML = `
+    <div class="metric-card">
+      <div class="metric-accent" style="background:var(--purple)"></div>
+      <div class="metric-label">Total pacientes</div>
+      <div class="metric-value">${m.total}</div>
+      <div class="metric-sub">↑ <span class="up">+5</span> este mês</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-accent" style="background:var(--red)"></div>
+      <div class="metric-label">Críticos agora</div>
+      <div class="metric-value" style="color:var(--red)">${m.criticos}</div>
+      <div class="metric-sub"><span class="up">Requerem atenção</span></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-accent" style="background:var(--amber)"></div>
+      <div class="metric-label">Em observação</div>
+      <div class="metric-value" style="color:var(--amber)">${m.atencao}</div>
+      <div class="metric-sub">Parâmetro fora do ideal</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-accent" style="background:var(--green)"></div>
+      <div class="metric-label">Estáveis</div>
+      <div class="metric-value" style="color:var(--green)">${m.estaveis}</div>
+      <div class="metric-sub"><span class="down">${m.pct}%</span> da carteira</div>
+    </div>
+  `;
+}
+
+/* ── TABELA PACIENTES ── */
+const dotClass  = s => ({ critico:'red', atencao:'amber', estavel:'green' }[s] || 'green');
+const pillClass = s => ({ critico:'critico', atencao:'atencao', estavel:'estavel' }[s] || 'estavel');
+const pillLabel = s => ({ critico:'Crítico', atencao:'Atenção', estavel:'Estável' }[s] || s);
+const orderMap  = { critico:0, atencao:1, estavel:2 };
+
+let filtroAtivo = 'todos';
+let termoBusca  = '';
+
+function patientRow(p) {
+  return `
+    <div class="patient-row" onclick="openModal(${p.id})">
+      <div class="severity-dot ${dotClass(p.status)}"></div>
+      <div>
+        <div class="patient-name">${p.nome}</div>
+        <div class="patient-age">${p.idade} anos · ${p.condicoes}</div>
+      </div>
+      <div><span class="vital-badge ${p.paColor}">${p.pressao}</span></div>
+      <div class="med-status col-med">${p.medicacao}</div>
+      <div class="col-last" style="font-size:11px;color:var(--muted)">${p.ultimoReg}</div>
+      <div><span class="risk-pill ${pillClass(p.status)}">${pillLabel(p.status)}</span></div>
+      <div><button class="action-btn" onclick="event.stopPropagation();openModal(${p.id})">Ver →</button></div>
+    </div>`;
+}
+
+function getFilteredList() {
+  let lista = [...pacientes].sort((a, b) => orderMap[a.status] - orderMap[b.status]);
+  if (filtroAtivo !== 'todos') lista = lista.filter(p => p.status === filtroAtivo);
+  if (termoBusca.trim()) {
+    const t = termoBusca.toLowerCase();
+    lista = lista.filter(p =>
+      p.nome.toLowerCase().includes(t) || p.condicoes.toLowerCase().includes(t)
+    );
+  }
+  return lista;
+}
+
+function patientTableHtml(filtro, termo) {
+  filtroAtivo = filtro || filtroAtivo;
+  termoBusca  = termo  !== undefined ? termo : termoBusca;
+  const lista = getFilteredList();
+  const tabs = [
+    { key:'todos',   label:'Todos'    },
+    { key:'critico', label:'Críticos' },
+    { key:'atencao', label:'Atenção'  },
+    { key:'estavel', label:'Estáveis' },
+  ];
+  const tabsHtml = tabs.map(t =>
+    `<button class="filter-tab ${filtroAtivo === t.key ? 'active' : ''}"
+      onclick="refreshTable('${t.key}')">${t.label}</button>`
+  ).join('');
+  const rows = lista.length
+    ? lista.map(patientRow).join('')
+    : `<div class="empty-state">Nenhum paciente encontrado.</div>`;
+  return { tabsHtml, rows };
+}
+
+function renderPatientPanel() {
+  const { tabsHtml, rows } = patientTableHtml();
+  document.getElementById('patientPanel').innerHTML = `
+    <div class="panel-header">
+      <div class="panel-title">Pacientes — ordenados por criticidade</div>
+      <div class="filter-tabs">${tabsHtml}</div>
+    </div>
+    <div class="patient-table">
+      <div class="patient-row header-row">
+        <div></div>
+        <div class="col-label">Paciente</div>
+        <div class="col-label">Pressão</div>
+        <div class="col-label col-med">Medicação</div>
+        <div class="col-label col-last">Último reg.</div>
+        <div class="col-label">Risco</div>
+        <div></div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+function refreshTable(filtro) {
+  filtroAtivo = filtro;
+  if (paginaAtiva === 'dashboard')   renderPatientPanel();
+  if (paginaAtiva === 'pacientes')   renderPacientesPage();
+}
+
+/* ── SIDE COL ── */
+function renderSideCol() {
+  const alertasVisiveis = alertas.filter(a=>a.ativo).slice(0, 5);
+  const alertasHtml = alertasVisiveis.map(a => `
+    <div class="alert-item">
+      <div class="alert-icon ${a.severity}">${a.icon}</div>
+      <div>
+        <div class="alert-msg">${a.msg}</div>
+        <div class="alert-patient">${a.paciente}</div>
+        <div class="alert-time">${a.detalhe}</div>
+      </div>
+    </div>`).join('');
+
+  const agendaHtml = agendaHoje.map(c => `
+    <div class="schedule-item">
+      <div class="schedule-time">${c.hora}</div>
+      <div>
+        <div class="schedule-name">${c.paciente}</div>
+        <div class="schedule-type">${c.tipo}</div>
+      </div>
+      <div class="schedule-dot" style="background:${c.dotColor}"></div>
+    </div>`).join('');
+
+  document.getElementById('sideCol').innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Alertas em tempo real</div>
+        <div style="font-size:10px;color:var(--muted)">${alertas.filter(a=>a.ativo).length} ativos</div>
+      </div>
+      ${alertasHtml}
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Agenda de hoje</div>
+        <div style="font-size:10px;color:var(--purple);font-weight:500;cursor:pointer"
+          onclick="navigateTo('agenda')">Ver completa →</div>
+      </div>
+      ${agendaHtml}
+    </div>`;
+}
+
+/* ── PAGE: PACIENTES ── */
+function renderPacientesPage() {
+  metricsHtml(document.getElementById('metricsRowPac'));
+  const { tabsHtml, rows } = patientTableHtml();
+  document.getElementById('patientPanelFull').innerHTML = `
+    <div class="panel-header">
+      <div class="panel-title">Todos os pacientes — ${pacientes.length} cadastrados</div>
+      <div class="filter-tabs">${tabsHtml}</div>
+    </div>
+    <div class="patient-table">
+      <div class="patient-row header-row">
+        <div></div>
+        <div class="col-label">Paciente</div>
+        <div class="col-label">Pressão</div>
+        <div class="col-label col-med">Medicação</div>
+        <div class="col-label col-last">Último reg.</div>
+        <div class="col-label">Risco</div>
+        <div></div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+/* ── PAGE: ALERTAS ── */
+function renderAlertasPage() {
+  const ativos   = alertas.filter(a => a.ativo);
+  const criticos = ativos.filter(a => a.severity === 'red');
+  const avisos   = ativos.filter(a => a.severity === 'amber');
+
+  function sectionHtml(lista) {
+    return lista.map(a => `
+      <div class="alert-page-item">
+        <div class="alert-page-icon ${a.severity}">${a.icon}</div>
+        <div style="flex:1">
+          <div class="alert-page-title">${a.msg}</div>
+          <div class="alert-page-sub">${a.paciente} · ${a.detalhe}</div>
+        </div>
+        <div class="alert-page-badge">
+          <button class="dismiss-btn" onclick="dismissAlert(${a.id})">Dispensar</button>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('alertasPage').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--red)"></div>
+        <div class="metric-label">Críticos</div>
+        <div class="metric-value" style="color:var(--red)">${criticos.length}</div>
+        <div class="metric-sub"><span class="up">Ação imediata</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--amber)"></div>
+        <div class="metric-label">Avisos</div>
+        <div class="metric-value" style="color:var(--amber)">${avisos.length}</div>
+        <div class="metric-sub">Monitorar</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--green)"></div>
+        <div class="metric-label">Total ativos</div>
+        <div class="metric-value">${ativos.length}</div>
+        <div class="metric-sub"><span class="down">Gerados hoje</span></div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">🚨 Críticos (${criticos.length})</div>
+    ${sectionHtml(criticos)}
+    <div style="font-size:11px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.07em;margin:16px 0 8px">⚠️ Avisos (${avisos.length})</div>
+    ${sectionHtml(avisos)}`;
+}
+
+function dismissAlert(id) {
+  const a = alertas.find(x => x.id === id);
+  if (a) a.ativo = false;
+  renderAlertasPage();
+  renderSideCol();
+}
+
+/* ── PAGE: AGENDA ── */
+function renderAgendaPage() {
+  const badgeLabel = { realizado:'Realizado', andamento:'Em andamento', agendado:'Agendado' };
+
+  function agendaCards(lista) {
+    return lista.map(c => `
+      <div class="agenda-card">
+        <div class="agenda-card-time">${c.hora}</div>
+        <div style="flex:1">
+          <div class="agenda-card-name">${c.paciente}</div>
+          <div class="agenda-card-type">${c.tipo}</div>
+        </div>
+        <span class="agenda-card-badge ${c.badge}">${badgeLabel[c.badge]}</span>
+      </div>`).join('');
+  }
+
+  document.getElementById('agendaPage').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--purple)"></div>
+        <div class="metric-label">Consultas hoje</div>
+        <div class="metric-value">${agendaHoje.length}</div>
+        <div class="metric-sub">${agendaHoje.filter(c=>c.badge==='realizado').length} realizadas</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--blue)"></div>
+        <div class="metric-label">Consultas amanhã</div>
+        <div class="metric-value">${agendaAmanha.length}</div>
+        <div class="metric-sub">Pré-agendadas</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--amber)"></div>
+        <div class="metric-label">Em andamento</div>
+        <div class="metric-value" style="color:var(--amber)">${agendaHoje.filter(c=>c.badge==='andamento').length}</div>
+        <div class="metric-sub">Neste momento</div>
+      </div>
+    </div>
+    <div class="agenda-day-label">Hoje — ${dateString()}</div>
+    ${agendaCards(agendaHoje)}
+    <div class="agenda-day-label">Amanhã — Segunda-feira, 7 de abril de 2025</div>
+    ${agendaCards(agendaAmanha)}`;
+}
+
+/* ── PAGE: RELATÓRIOS ── */
+function renderRelatoriosPage() {
+  const relatorios = [
+    { icon:'🫀', title:'Monitoramento Cardíaco', sub:'Pressão, FC, saturação', date:'Gerado hoje' },
+    { icon:'🩸', title:'Controle Glicêmico',     sub:'Glicemia e HbA1c',       date:'Gerado hoje' },
+    { icon:'💊', title:'Aderência Medicamentosa', sub:'Doses e faltas por paciente', date:'Ontem' },
+    { icon:'📊', title:'Evolução Mensal',         sub:'Todos os indicadores',   date:'01/04/2025' },
+    { icon:'🧪', title:'Exames Pendentes',        sub:'Laudos e requisições',   date:'03/04/2025' },
+    { icon:'📅', title:'Ocupação de Agenda',      sub:'Consultas e cancelamentos', date:'Semana atual' },
+  ];
+
+  const bars = [
+    { label:'Hipertensão',     val:8,  max:18, color:'var(--purple)' },
+    { label:'Diabetes',        val:5,  max:18, color:'var(--red)'    },
+    { label:'Cardiopatia',     val:4,  max:18, color:'var(--amber)'  },
+    { label:'Outros',          val:7,  max:18, color:'var(--green)'  },
+  ];
+
+  const barsHtml = bars.map(b => `
+    <div class="chart-bar-row">
+      <div class="chart-bar-label">${b.label}</div>
+      <div class="chart-bar-track">
+        <div class="chart-bar-fill" style="width:${Math.round(b.val/b.max*100)}%;background:${b.color}"></div>
+      </div>
+      <div class="chart-bar-val">${b.val}</div>
+    </div>`).join('');
+
+  document.getElementById('relatoriosPage').innerHTML = `
+    <div class="relat-grid">
+      ${relatorios.map(r => `
+        <div class="relat-card">
+          <div class="relat-card-icon">${r.icon}</div>
+          <div class="relat-card-title">${r.title}</div>
+          <div class="relat-card-sub">${r.sub}</div>
+          <div class="relat-card-date">📄 ${r.date}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Diagnósticos da carteira</div></div>
+        <div class="chart-bar-container">${barsHtml}</div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Adesão medicamentosa — 30 dias</div></div>
+        <div class="chart-bar-container">
+          ${[
+            { label:'100% (excelente)',  val:9,  max:18, color:'var(--green)'  },
+            { label:'80–99% (boa)',      val:5,  max:18, color:'var(--blue)'   },
+            { label:'50–79% (regular)',  val:3,  max:18, color:'var(--amber)'  },
+            { label:'< 50% (crítica)',   val:3,  max:18, color:'var(--red)'    },
+          ].map(b => `
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">${b.label}</div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill" style="width:${Math.round(b.val/b.max*100)}%;background:${b.color}"></div>
+              </div>
+              <div class="chart-bar-val">${b.val}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── PAGE: EXAMES ── */
+function renderExamesPage() {
+  const statusLabel = { pendente:'Pendente', concluido:'Concluído', urgente:'Urgente' };
+  const rows = exames.map(e => `
+    <div class="exam-row">
+      <div>
+        <div class="exam-name">${e.nome}</div>
+        <div class="exam-pat">${e.paciente}</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">${e.tipo}</div>
+      <div style="font-size:11px;color:var(--muted)">${e.data}</div>
+      <div><span class="exam-status-badge ${e.status}">${statusLabel[e.status]}</span></div>
+      <div><button class="action-btn">Ver →</button></div>
+    </div>`).join('');
+
+  document.getElementById('examesPage').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--red)"></div>
+        <div class="metric-label">Urgentes</div>
+        <div class="metric-value" style="color:var(--red)">${exames.filter(e=>e.status==='urgente').length}</div>
+        <div class="metric-sub"><span class="up">Prioridade máxima</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--amber)"></div>
+        <div class="metric-label">Pendentes</div>
+        <div class="metric-value" style="color:var(--amber)">${exames.filter(e=>e.status==='pendente').length}</div>
+        <div class="metric-sub">Aguardando resultado</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--green)"></div>
+        <div class="metric-label">Concluídos</div>
+        <div class="metric-value" style="color:var(--green)">${exames.filter(e=>e.status==='concluido').length}</div>
+        <div class="metric-sub"><span class="down">Este mês</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Todos os exames — ${exames.length} registros</div></div>
+      <div class="exam-row header">
+        <div class="col-label">Exame / Paciente</div>
+        <div class="col-label">Tipo</div>
+        <div class="col-label">Data</div>
+        <div class="col-label">Status</div>
+        <div></div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+/* ── PAGE: MEDICAÇÕES ── */
+function renderMedicacoesPage() {
+  const statusLabel = { ok:'Normal', baixo:'Baixo', critico:'Crítico' };
+  const rows = medicacoes.map(m => {
+    const pct = Math.round(m.estoque / m.total * 100);
+    return `
+    <div class="med-row">
+      <div>
+        <div class="exam-name">${m.nome}</div>
+        <div class="exam-pat">${m.paciente}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--text)">${m.estoque}/${m.total} comp.</div>
+        <div class="estoque-bar"><div class="estoque-fill ${m.status}" style="width:${pct}%"></div></div>
+      </div>
+      <div><span class="risk-pill ${m.status==='ok'?'estavel':m.status==='baixo'?'atencao':'critico'}">${statusLabel[m.status]}</span></div>
+      <div style="font-size:11px;color:var(--muted)">${m.proxRenovacao}</div>
+      <div><button class="action-btn">Renovar →</button></div>
+    </div>`;
+  });
+
+  document.getElementById('medicacoesPage').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--red)"></div>
+        <div class="metric-label">Estoque zerado/crítico</div>
+        <div class="metric-value" style="color:var(--red)">${medicacoes.filter(m=>m.status==='critico').length}</div>
+        <div class="metric-sub"><span class="up">Renovar urgente</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--amber)"></div>
+        <div class="metric-label">Estoque baixo</div>
+        <div class="metric-value" style="color:var(--amber)">${medicacoes.filter(m=>m.status==='baixo').length}</div>
+        <div class="metric-sub">Planejar reposição</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-accent" style="background:var(--green)"></div>
+        <div class="metric-label">Em dia</div>
+        <div class="metric-value" style="color:var(--green)">${medicacoes.filter(m=>m.status==='ok').length}</div>
+        <div class="metric-sub"><span class="down">Sem alertas</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Controle de medicamentos — ${medicacoes.length} registros</div></div>
+      <div class="med-row header">
+        <div class="col-label">Medicamento / Paciente</div>
+        <div class="col-label">Estoque</div>
+        <div class="col-label">Status</div>
+        <div class="col-label">Próx. renovação</div>
+        <div></div>
+      </div>
+      ${rows.join('')}
+    </div>`;
+}
+
+/* ── MODAL PACIENTE ── */
+function openModal(id) {
+  const p = pacientes.find(x => x.id === id);
+  if (!p) return;
+  const sc = pillClass(p.status);
+  const sl = pillLabel(p.status);
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">${p.nome}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">${p.idade} anos · ${p.sexo === 'F' ? 'Feminino' : 'Masculino'} · ${p.condicoes}</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:4px">
+      <span class="risk-pill ${sc}" style="font-size:11px">${sl}</span>
+      <span style="font-size:11px;color:var(--muted);padding:3px 0">· Último registro ${p.ultimoReg}</span>
+    </div>
+    <div class="modal-section-label">Sinais Vitais</div>
+    <div class="modal-row"><span class="modal-row-label">Pressão arterial</span><span class="modal-row-value"><span class="vital-badge ${p.paColor}">${p.pressao} mmHg</span></span></div>
+    <div class="modal-row"><span class="modal-row-label">Frequência cardíaca</span><span class="modal-row-value">${p.fc}</span></div>
+    <div class="modal-row"><span class="modal-row-label">Glicemia</span><span class="modal-row-value">${p.glicemia}</span></div>
+    <div class="modal-row"><span class="modal-row-label">Saturação O₂</span><span class="modal-row-value">${p.saturacao}</span></div>
+    <div class="modal-row"><span class="modal-row-label">Peso / Altura</span><span class="modal-row-value">${p.peso} / ${p.altura}</span></div>
+    <div class="modal-section-label">Medicações em uso</div>
+    ${p.meds.map(m => `<div class="modal-row"><span class="modal-row-label">💊</span><span class="modal-row-value">${m}</span></div>`).join('')}
+    <div class="modal-section-label">Contato</div>
+    <div class="modal-row"><span class="modal-row-label">Telefone</span><span class="modal-row-value">${p.telefone}</span></div>
+    <div class="modal-row"><span class="modal-row-label">E-mail</span><span class="modal-row-value">${p.email}</span></div>
+    <div class="modal-section-label">Consultas</div>
+    <div class="modal-row"><span class="modal-row-label">Última consulta</span><span class="modal-row-value">${p.ultimaConsulta}</span></div>
+    <div class="modal-row"><span class="modal-row-label">Próxima consulta</span><span class="modal-row-value">${p.proximaConsulta}</span></div>
+    <div style="margin-top:4px">
+      <button class="modal-btn">📅 Agendar consulta</button>
+      <button class="modal-btn outline" onclick="closeModal()">Fechar</button>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+/* ── NOTIFICAÇÕES ── */
+function toggleNotif() {
+  const panel = document.getElementById('notifPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    document.getElementById('notifList').innerHTML = notificacoes.map(n => `
+      <div class="notif-panel-item">
+        <div class="notif-panel-icon">${n.icon}</div>
+        <div>
+          <div class="notif-panel-msg">${n.msg}</div>
+          <div class="notif-panel-time">${n.time}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+document.getElementById('notifBtn').addEventListener('click', toggleNotif);
+
+/* ── BUSCA ── */
+document.getElementById('searchInput').addEventListener('input', function () {
+  termoBusca = this.value;
+  if (paginaAtiva === 'dashboard')  renderPatientPanel();
+  if (paginaAtiva === 'pacientes')  renderPacientesPage();
+});
+
+/* ── INIT ── */
+renderSidebar();
+renderTopbarDate();
+metricsHtml(document.getElementById('metricsRow'));
+renderPatientPanel();
+renderSideCol();
+setInterval(renderTopbarDate, 60000);
+
+</script>
+</body>
+</html>
