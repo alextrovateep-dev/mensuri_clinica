@@ -205,6 +205,29 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 }
 .msg-btn:hover { background: var(--purple-light); color: var(--purple); border-color: var(--purple-mid); }
 
+/* ── DASHBOARD: fila compacta (diferente da lista Pacientes) ── */
+.dash-queue-hint { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; max-width: 280px; line-height: 1.35; }
+.dash-queue-count { font-size: 13px; font-weight: 600; color: var(--text); }
+.dash-queue-list { padding: 0; }
+.dash-queue-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s;
+}
+.dash-queue-item:last-child { border-bottom: none; }
+.dash-queue-item:hover { background: var(--bg); }
+.dash-queue-main { flex: 1; min-width: 0; }
+.dash-queue-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dash-queue-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.dash-queue-meta { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.45; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.dash-queue-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.dash-queue-more {
+  padding: 11px 16px; font-size: 12px; color: var(--muted); text-align: center;
+  border-top: 1px solid var(--border); background: var(--bg);
+}
+.dash-queue-more .dash-link { color: var(--purple); font-weight: 500; cursor: pointer; }
+.dash-queue-more .dash-link:hover { text-decoration: underline; }
+.pacientes-page-hint { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; line-height: 1.35; }
+
 /* ── SIDE PANELS ── */
 .side-col { display: flex; flex-direction: column; gap: 14px; }
 .alert-item {
@@ -617,7 +640,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   <main class="main">
     <div class="topbar">
       <div>
-        <div class="topbar-title" id="topbarTitle">Visão geral da carteira</div>
+        <div class="topbar-title" id="topbarTitle">Painel do dia</div>
         <div class="topbar-date" id="topbarDate"></div>
       </div>
       <div class="topbar-right">
@@ -1259,7 +1282,7 @@ let paginaAtiva = 'dashboard';
 let paginaAnterior = null;
 
 const pageTitles = {
-  dashboard:'Visão geral da carteira', pacientes:'Pacientes',
+  dashboard:'Painel do dia', pacientes:'Carteira de pacientes',
   detalhe:'Perfil do paciente', alertas:'Alertas em tempo real',
   agenda:'Agenda', relatorios:'Relatórios', exames:'Exames',
   medicacoes:'Medicações', configuracoes:'Configurações',
@@ -1276,8 +1299,12 @@ function navigateTo(page, extra) {
   document.getElementById('topbarTitle').textContent = pageTitles[page] || page;
   const showSearch = page === 'dashboard' || page === 'pacientes';
   document.getElementById('searchBoxWrap').style.display = showSearch ? 'flex' : 'none';
+  const searchInp = document.getElementById('searchInput');
+  if (searchInp) {
+    searchInp.placeholder = page === 'dashboard' ? 'Buscar na fila do dia…' : 'Buscar na carteira…';
+  }
   renderSidebar();
-  if (page === 'dashboard')   { metricsHtml(document.getElementById('metricsRow'), false); renderPatientPanel(); renderSideCol(); }
+  if (page === 'dashboard')   { metricsHtml(document.getElementById('metricsRow'), false); renderDashboardQueue(); renderSideCol(); }
   if (page === 'pacientes')   renderPacientesPage();
   if (page === 'detalhe')     renderDetalhePage(extra);
   if (page === 'alertas')     renderAlertasPage();
@@ -1329,12 +1356,17 @@ function metricsHtml(el, showAll) {
   const activePage = showAll ? 'pacientes' : 'dashboard';
   const isActive = f => filtroAtivo === f ? 'filter-active' : '';
 
+  const firstLabel = showAll ? 'Total pacientes' : 'Total na carteira';
+  const firstSub = showAll
+    ? '↑ <span class="up">+5</span> este mês'
+    : 'Lista completa na aba Pacientes';
+
   el.innerHTML = `
     <div class="metric-card ${isActive('todos')}" onclick="setFiltroCard('todos','${activePage}')">
       <div class="metric-accent" style="background:var(--purple)"></div>
-      <div class="metric-label">Total pacientes</div>
+      <div class="metric-label">${firstLabel}</div>
       <div class="metric-value">${m.total}</div>
-      <div class="metric-sub">↑ <span class="up">+5</span> este mês</div>
+      <div class="metric-sub">${firstSub}</div>
     </div>
     <div class="metric-card ${isActive('critico')}" onclick="setFiltroCard('critico','${activePage}')">
       <div class="metric-accent" style="background:var(--red)"></div>
@@ -1360,7 +1392,7 @@ function setFiltroCard(filtro, page) {
   // toggle: se clicar no mesmo, limpa o filtro
   filtroAtivo = filtroAtivo === filtro ? 'todos' : filtro;
   if (page === 'dashboard') {
-    renderPatientPanel();
+    renderDashboardQueue();
     metricsHtml(document.getElementById('metricsRow'), false);
   }
   if (page === 'pacientes') {
@@ -1459,7 +1491,7 @@ function filterTabsHtml() {
 function setFiltro(k) {
   filtroAtivo = k;
   if (paginaAtiva === 'dashboard') {
-    renderPatientPanel();
+    renderDashboardQueue();
     metricsHtml(document.getElementById('metricsRow'), false);
   }
   if (paginaAtiva === 'pacientes') {
@@ -1468,24 +1500,64 @@ function setFiltro(k) {
   }
 }
 
-/* ── DASHBOARD ── */
-function renderPatientPanel() {
-  const lista = getList(true);
-  const filterLabels = { todos:'Críticos e em observação — ação necessária', critico:'Filtro: Críticos', atencao:'Filtro: Em observação', estavel:'Filtro: Estáveis' };
-  const rows = lista.length
-    ? lista.map(p => patientRowHtml(p, true)).join('')
+/* ── DASHBOARD (fila resumida — não duplica a tabela de Pacientes) ── */
+const DASH_QUEUE_MAX = 7;
+
+function dashQueueItemHtml(p) {
+  return `
+    <div class="dash-queue-item" onclick="openDetalhe(${p.id})">
+      ${patientAvatarHtml(p, 40, 13)}
+      <div class="dash-queue-main">
+        <div class="dash-queue-top">
+          <span class="dash-queue-name">${p.nome}</span>
+          <span class="risk-pill ${pillClass(p.status)}">${pillLabel(p.status)}</span>
+        </div>
+        <div class="dash-queue-meta">
+          <span class="vital-badge ${p.paColor}">${p.pressao}</span>
+          <span>Último reg.: ${p.ultimoReg}</span>
+          <span>· ${p.medicacao}</span>
+        </div>
+      </div>
+      <div class="dash-queue-actions">
+        <button type="button" class="msg-btn" title="Mensagem" onclick="event.stopPropagation();openMsgModal(${p.id})">✉</button>
+        <button type="button" class="action-btn" onclick="event.stopPropagation();openDetalhe(${p.id})">Ver →</button>
+      </div>
+    </div>`;
+}
+
+function renderDashboardQueue() {
+  const fullList = getList(true);
+  const lista = fullList.slice(0, DASH_QUEUE_MAX);
+  const remaining = Math.max(0, fullList.length - lista.length);
+  const filterLabels = {
+    todos: 'Críticos e em observação',
+    critico: 'Somente críticos',
+    atencao: 'Somente em observação',
+    estavel: 'Somente estáveis',
+  };
+  const titleSuffix = filtroAtivo === 'todos' ? ' — prioridade do dia' : ` — ${filterLabels[filtroAtivo].toLowerCase()}`;
+
+  const moreRow = remaining > 0
+    ? `<div class="dash-queue-more">Mais <strong>${remaining}</strong> no mesmo filtro · <span class="dash-link" onclick="navigateTo('pacientes')">abrir lista completa</span></div>`
+    : '';
+
+  const listHtml = lista.length
+    ? lista.map(dashQueueItemHtml).join('')
     : `<div class="empty-state">Nenhum paciente neste filtro.</div>`;
+
   document.getElementById('patientPanel').innerHTML = `
     <div class="panel-header">
-      <div class="panel-title">${filterLabels[filtroAtivo]}</div>
-      <div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="navigateTo('pacientes')">
-        Ver todos os ${pacientes.length} pacientes →
+      <div>
+        <div class="panel-title">Fila de atenção${titleSuffix}</div>
+        <div class="dash-queue-hint">Até ${DASH_QUEUE_MAX} pacientes para ação rápida. Métricas acima filtram esta fila.</div>
+      </div>
+      <div style="text-align:right">
+        <div class="dash-queue-count">${fullList.length} no filtro</div>
+        <div style="font-size:11px;color:var(--purple);font-weight:500;cursor:pointer;margin-top:6px" onclick="navigateTo('pacientes')">Carteira completa →</div>
       </div>
     </div>
-    <div class="patient-table">
-      ${tableHeaderHtml()}
-      ${rows}
-    </div>`;
+    <div class="dash-queue-list">${listHtml}</div>
+    ${fullList.length ? moreRow : ''}`;
 }
 
 function renderSideCol() {
@@ -1546,7 +1618,10 @@ function renderPacientesPage() {
     : `<div class="empty-state">Nenhum paciente encontrado.</div>`;
   document.getElementById('patientPanelFull').innerHTML = `
     <div class="panel-header">
-      <div class="panel-title">Todos os pacientes — ${pacientes.length} cadastrados</div>
+      <div>
+        <div class="panel-title">Todos os pacientes — ${pacientes.length} cadastrados</div>
+        <div class="pacientes-page-hint">Tabela completa: colunas de pressão, medicação, último registro e risco. Use as abas e os cartões acima para filtrar.</div>
+      </div>
       <div class="filter-tabs">${filterTabsHtml()}</div>
     </div>
     <div class="patient-table">
@@ -2456,7 +2531,7 @@ document.getElementById('notifBtn').addEventListener('click', toggleNotif);
 /* ── BUSCA ── */
 document.getElementById('searchInput').addEventListener('input', function() {
   termoBusca = this.value;
-  if (paginaAtiva === 'dashboard') renderPatientPanel();
+  if (paginaAtiva === 'dashboard') renderDashboardQueue();
   if (paginaAtiva === 'pacientes') renderPacientesPage();
 });
 
@@ -2464,7 +2539,7 @@ document.getElementById('searchInput').addEventListener('input', function() {
 renderSidebar();
 renderTopbarDate();
 metricsHtml(document.getElementById('metricsRow'), false);
-renderPatientPanel();
+renderDashboardQueue();
 renderSideCol();
 setInterval(renderTopbarDate, 60000);
 </script>
