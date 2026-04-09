@@ -27,10 +27,13 @@
   --muted:        #6b7280;
   --border:       #e5e7eb;
   --radius:       12px;
-  --sidebar:      220px;
+  --sidebar:      232px;
+  --content-pad:  22px 28px;
+  --grid-sidebar: 340px;
+  --grid-gap:     20px;
 }
 
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; }
 .layout { display: flex; min-height: 100vh; }
 
 /* ── SIDEBAR ── */
@@ -41,8 +44,31 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   padding: 20px 0 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
 .sidebar-logo { padding: 0 16px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.brand-logo-img {
+  display: block;
+  max-width: 100%;
+  max-height: 48px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: left center;
+  margin-bottom: 12px;
+}
 .logo-name { font-size: 15px; font-weight: 600; color: var(--purple); }
 .logo-sub  { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.topbar-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar-logo-img {
+  display: none;
+  height: 34px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  object-position: left center;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .topbar-logo-img { display: block; }
+}
 .nav-section-label {
   font-size: 9px; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 16px 6px;
@@ -82,10 +108,10 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .main { flex: 1; overflow-x: hidden; display: flex; flex-direction: column; min-width: 0; }
 .topbar {
   background: var(--white); border-bottom: 1px solid var(--border);
-  padding: 12px 24px; display: flex; justify-content: space-between;
-  align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 20;
+  padding: 14px 28px; display: flex; justify-content: space-between;
+  align-items: center; gap: 14px; flex-wrap: wrap; position: sticky; top: 0; z-index: 20;
 }
-.topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.topbar-title { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
 .topbar-date  { font-size: 11px; color: var(--muted); }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 .search-box {
@@ -93,8 +119,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px;
 }
 .search-box input {
-  border: none; background: none; font-size: 12px; color: var(--text);
-  outline: none; width: 180px; font-family: 'DM Sans', sans-serif;
+  border: none; background: none; font-size: 13px; color: var(--text);
+  outline: none; width: 240px; font-family: 'DM Sans', sans-serif;
 }
 .search-icon { font-size: 12px; color: var(--muted); }
 .notif-btn {
@@ -106,37 +132,57 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   position: absolute; top: 6px; right: 6px; width: 7px; height: 7px;
   border-radius: 50%; background: var(--red); border: 1.5px solid white;
 }
-.content { padding: 20px 24px; flex: 1; }
+.content { padding: var(--content-pad); flex: 1; }
 .page { display: none; }
 .page.active { display: block; }
 
 /* ── COMPONENTS ── */
-.metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+.metrics-row.metrics-row--dash {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.metrics-row.metrics-row--dash .metric-card {
+  padding: 14px 18px;
+  gap: 6px;
+}
+.metrics-row.metrics-row--dash .metric-label { font-size: 10px; letter-spacing: 0.06em; }
+.metrics-row.metrics-row--dash .metric-value { font-size: 26px; }
+.metrics-row.metrics-row--dash .metric-sub { font-size: 11px; line-height: 1.35; }
 .metric-card {
   background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
   padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden;
 }
-.metric-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.metric-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  pointer-events: none;
+}
+button.metric-card {
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+  width: 100%;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+button.metric-card:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
 .metric-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .metric-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
 .metric-sub   { font-size: 11px; color: var(--muted); }
 .metric-sub .up   { color: var(--red); }
 .metric-sub .down { color: var(--green); }
 
-.main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+.main-grid { display: grid; grid-template-columns: 1fr var(--grid-sidebar); gap: var(--grid-gap); }
 .panel { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
 .panel-header {
   padding: 14px 16px; border-bottom: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
 }
-.panel-title { font-size: 13px; font-weight: 600; color: var(--text); }
-
-.filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-.filter-tab {
-  font-size: 11px; font-weight: 500; padding: 5px 10px; border-radius: 6px;
-  border: 1px solid var(--border); background: none; cursor: pointer; color: var(--muted); transition: all 0.12s;
-}
-.filter-tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+.panel-title { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
 
 /* patient table */
 .patient-table { width: 100%; }
@@ -172,6 +218,10 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .metric-card { cursor: pointer; transition: box-shadow 0.15s, transform 0.12s; }
 .metric-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-1px); }
 .metric-card.filter-active { box-shadow: 0 0 0 2px var(--purple), 0 4px 16px rgba(124,58,237,0.15); }
+.metrics-row.metrics-row--dash .metric-card:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
 
 .severity-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .severity-dot.red   { background: var(--red);   box-shadow: 0 0 0 3px #fecaca; }
@@ -205,28 +255,60 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 }
 .msg-btn:hover { background: var(--purple-light); color: var(--purple); border-color: var(--purple-mid); }
 
-/* ── DASHBOARD: fila compacta (diferente da lista Pacientes) ── */
-.dash-queue-hint { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; max-width: 280px; line-height: 1.35; }
+/* ── DASHBOARD: fila (otimizado para uso em PC na clínica) ── */
+.dash-queue-panel .panel-header {
+  padding: 16px 20px; align-items: flex-start;
+}
+.dash-queue-hint { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; max-width: 420px; line-height: 1.4; }
 .dash-queue-count { font-size: 13px; font-weight: 600; color: var(--text); }
 .dash-queue-list { padding: 0; }
 .dash-queue-item {
-  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 14px; padding: 12px 20px;
   border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s;
 }
 .dash-queue-item:last-child { border-bottom: none; }
 .dash-queue-item:hover { background: var(--bg); }
 .dash-queue-main { flex: 1; min-width: 0; }
-.dash-queue-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.dash-queue-name { font-size: 14px; font-weight: 600; color: var(--text); }
-.dash-queue-meta { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.45; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.dash-queue-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.dash-queue-line {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; line-height: 1.35;
+}
+.dash-queue-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.dash-queue-meta-text { font-size: 12px; color: var(--muted); }
+.dash-queue-item .risk-pill { font-size: 10px; padding: 3px 9px; }
+.dash-queue-item .vital-badge { font-size: 11px; padding: 3px 8px; }
+.dash-queue-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.dash-queue-item .msg-btn { padding: 6px 11px; font-size: 11px; }
 .dash-queue-more {
-  padding: 11px 16px; font-size: 12px; color: var(--muted); text-align: center;
+  padding: 11px 18px; font-size: 12px; color: var(--muted); text-align: center;
   border-top: 1px solid var(--border); background: var(--bg);
 }
 .dash-queue-more .dash-link { color: var(--purple); font-weight: 500; cursor: pointer; }
 .dash-queue-more .dash-link:hover { text-decoration: underline; }
 .pacientes-page-hint { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; line-height: 1.35; }
+
+/* ── DASHBOARD: harmonia entre fila e lateral (sem painel esticado) ── */
+#page-dashboard .main-grid {
+  align-items: start;
+  gap: var(--grid-gap);
+}
+#page-dashboard #patientPanel.dash-queue-panel,
+#page-dashboard .side-col .panel {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+#page-dashboard .side-col {
+  gap: 14px;
+  position: sticky;
+  top: 76px;
+  align-self: start;
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
+}
+#page-dashboard .alert-item { padding: 12px 16px; }
+#page-dashboard .schedule-item { padding: 11px 16px; }
+#page-dashboard .panel-header .panel-title { font-size: 13px; }
+#page-dashboard .side-col .panel-header { padding: 14px 18px; }
+#page-dashboard .dash-queue-item:nth-child(even) { background: rgba(248, 247, 252, 0.85); }
+#page-dashboard .dash-queue-item:hover { background: var(--bg); }
 
 /* ── SIDE PANELS ── */
 .side-col { display: flex; flex-direction: column; gap: 14px; }
@@ -319,35 +401,203 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .hist-val  { font-size: 11px; font-weight: 600; color: var(--text); }
 
 /* ── PAGE ALERTAS ── */
-.alert-page-item {
-  display: flex; gap: 14px; align-items: flex-start;
-  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 14px 16px; margin-bottom: 10px; transition: box-shadow 0.15s; cursor: pointer;
+#page-alertas .metrics-row.metrics-row--alertas {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 20px;
 }
-.alert-page-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-.alert-page-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.alertas-main-panel {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+.alertas-panel-body { padding: 0 0 8px; }
+.alertas-section { margin-bottom: 4px; }
+.alertas-section-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 20px 10px; border-top: 1px solid var(--border);
+}
+.alertas-section:first-of-type .alertas-section-head { border-top: none; padding-top: 6px; }
+.alertas-section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 8px;
+}
+.alertas-section--crit .alertas-section-title { color: var(--red); }
+.alertas-section--warn .alertas-section-title { color: var(--amber); }
+.alertas-section-count {
+  font-size: 12px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.alertas-section-list { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 10px; }
+.alert-page-item {
+  display: flex; gap: 14px; align-items: center;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px 14px 12px; transition: box-shadow 0.15s, border-color 0.15s; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.alert-page-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: var(--radius) 0 0 var(--radius);
+}
+.alert-page-item--crit::before { background: var(--red); }
+.alert-page-item--warn::before { background: var(--amber); }
+.alert-page-item:nth-child(even) { background: rgba(248, 247, 252, 0.65); }
+.alert-page-item:hover {
+  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
+  border-color: rgba(124, 58, 237, 0.18);
+  background: var(--white);
+}
+.alert-page-icon-wrap { flex-shrink: 0; }
+.alert-page-icon {
+  width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1;
+}
 .alert-page-icon.red   { background: var(--red-light); }
 .alert-page-icon.amber { background: var(--amber-light); }
-.alert-page-title { font-size: 13px; font-weight: 600; color: var(--text); }
-.alert-page-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.dismiss-btn { font-size: 11px; color: var(--muted); border: 1px solid var(--border); background: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; transition: all 0.1s; white-space: nowrap; }
-.dismiss-btn:hover { background: var(--bg); color: var(--text); }
+.alert-page-main { flex: 1; min-width: 0; }
+.alert-page-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-bottom: 6px; }
+.alert-sev-pill {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 3px 8px; border-radius: 6px; flex-shrink: 0;
+}
+.alert-sev-pill--crit { background: var(--red-light); color: var(--red); }
+.alert-sev-pill--warn { background: var(--amber-light); color: var(--amber); }
+.alert-page-msg { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; letter-spacing: -0.01em; }
+.alert-page-patient {
+  font-size: 12px; font-weight: 600; color: var(--purple); margin-top: 4px; cursor: pointer;
+}
+.alert-page-patient:hover { text-decoration: underline; }
+.alert-page-detalhe { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+.alert-page-actions {
+  display: flex; flex-direction: column; align-items: stretch; gap: 6px; flex-shrink: 0;
+}
+.alert-page-actions .msg-btn,
+.alert-page-actions .action-btn,
+.alert-page-actions .dismiss-btn { min-width: 92px; text-align: center; justify-content: center; }
+.alert-page-actions .action-btn {
+  font-size: 11px; font-weight: 500; color: var(--purple); border: 1px solid var(--purple-mid);
+  background: var(--white); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: all 0.1s;
+}
+.alert-page-actions .action-btn:hover { background: var(--purple-light); }
+.dismiss-btn {
+  font-size: 11px; font-weight: 500; color: var(--muted); border: 1px solid var(--border); background: var(--white);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: all 0.1s; white-space: nowrap;
+}
+.dismiss-btn:hover { background: var(--bg); color: var(--text); border-color: var(--purple-mid); }
+.alertas-empty-section {
+  padding: 20px 20px 8px; text-align: center; font-size: 13px; color: var(--muted); line-height: 1.45;
+}
+.alertas-zero {
+  text-align: center; padding: 48px 24px 40px; max-width: 400px; margin: 0 auto;
+}
+.alertas-zero-icon {
+  width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; background: var(--green-light);
+  color: var(--green); font-size: 28px; display: flex; align-items: center; justify-content: center;
+}
+.alertas-zero-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.alertas-zero-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+@media (max-width: 900px) {
+  #page-alertas .metrics-row.metrics-row--alertas { grid-template-columns: 1fr; }
+  .alert-page-item { flex-wrap: wrap; align-items: flex-start; }
+  .alert-page-actions {
+    flex-direction: row; flex-wrap: wrap; width: 100%; justify-content: flex-end; margin-top: 4px;
+    padding-left: 54px;
+  }
+  .alert-page-actions .msg-btn,
+  .alert-page-actions .action-btn,
+  .alert-page-actions .dismiss-btn { min-width: auto; flex: 1; }
+}
+@media (max-width: 480px) {
+  .alertas-section-list { padding: 0 12px 12px; }
+  .alert-page-actions { padding-left: 0; }
+}
 
 /* ── PAGE AGENDA ── */
 .agenda-day-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin: 18px 0 8px; }
-.agenda-card {
-  display: flex; gap: 14px; align-items: center;
-  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px 16px; margin-bottom: 8px; cursor: pointer; transition: box-shadow 0.12s;
+#page-agenda .metrics-row.metrics-row--agenda {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
 }
-.agenda-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
-.agenda-card-time { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--purple); min-width: 44px; }
-.agenda-card-name { font-size: 13px; font-weight: 500; color: var(--text); }
-.agenda-card-type { font-size: 11px; color: var(--muted); }
-.agenda-card-badge { margin-left: auto; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+#page-agenda .metrics-row.metrics-row--agenda .metric-card {
+  cursor: pointer;
+  min-height: 100px;
+  padding: 12px 14px;
+  justify-content: center;
+}
+#page-agenda .metrics-row.metrics-row--agenda .metric-card.filter-active {
+  box-shadow: 0 0 0 2px var(--purple), 0 4px 16px rgba(124, 58, 237, 0.14);
+}
+#page-agenda .metrics-row.metrics-row--agenda .metric-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+}
+#page-agenda .metrics-row.metrics-row--agenda .metric-label { font-size: 9px; letter-spacing: 0.06em; }
+#page-agenda .metrics-row.metrics-row--agenda .metric-value { font-size: 24px; line-height: 1.05; }
+#page-agenda .metrics-row.metrics-row--agenda .metric-sub { font-size: 10px; line-height: 1.3; }
+.agenda-card-avatar { flex-shrink: 0; }
+.agenda-sync-banner {
+  display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; margin-bottom: 18px;
+  background: linear-gradient(135deg, var(--purple-light) 0%, #eef2ff 100%);
+  border: 1px solid var(--purple-mid); border-radius: var(--radius); font-size: 13px; line-height: 1.45; color: var(--text);
+}
+.agenda-sync-banner strong { color: var(--purple); font-weight: 600; }
+.agenda-sync-icon { font-size: 22px; flex-shrink: 0; line-height: 1; }
+.agenda-main-panel { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05); }
+.agenda-day-section { padding: 0 0 8px; }
+.agenda-day-section + .agenda-day-section { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px; }
+.agenda-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px; margin-bottom: 8px; cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s;
+  position: relative; overflow: hidden;
+  min-height: 72px;
+}
+.agenda-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--purple-mid);
+  opacity: 0.35; border-radius: var(--radius) 0 0 var(--radius);
+}
+.agenda-card:hover {
+  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+.agenda-card:nth-child(even) { background: rgba(248, 247, 252, 0.65); }
+.agenda-card:hover { background: var(--white); }
+.agenda-card-time {
+  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--purple);
+  min-width: 44px; flex-shrink: 0; padding-top: 2px;
+}
+.agenda-card-body { flex: 1; min-width: 0; }
+.agenda-card-name { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; line-height: 1.25; }
+.agenda-card-med { font-size: 11px; font-weight: 500; color: var(--purple); margin-top: 2px; }
+.agenda-card-type { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+.agenda-card-app {
+  font-size: 9px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.05em;
+  margin-top: 4px; display: flex; align-items: center; gap: 4px;
+}
+.agenda-card-badge { margin-left: auto; font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; align-self: flex-start; }
 .agenda-card-badge.realizado { background: var(--green-light); color: var(--green); }
 .agenda-card-badge.andamento { background: var(--amber-light); color: var(--amber); }
 .agenda-card-badge.agendado  { background: var(--blue-light);  color: var(--blue); }
+.schedule-kind { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.3; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.modal-overlay.agenda-overlay { z-index: 115; padding: 12px; align-items: flex-end; }
+@media (min-width: 560px) {
+  .modal-overlay.agenda-overlay { align-items: center; padding: 16px; }
+}
+.modal.modal-agenda {
+  max-width: 480px; width: 100%; max-height: min(92vh, 720px);
+  border-radius: 16px 16px 0 0;
+}
+@media (min-width: 560px) {
+  .modal.modal-agenda { border-radius: 16px; max-height: 88vh; }
+}
+.agenda-modal-title { font-size: 17px; font-weight: 600; color: var(--text); }
+@media (max-width: 1100px) {
+  #page-agenda .metrics-row.metrics-row--agenda { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  #page-agenda .metrics-row.metrics-row--agenda { grid-template-columns: 1fr; }
+  #page-agenda .metrics-row.metrics-row--agenda .metric-value { font-size: 22px; }
+}
+@media (max-width: 600px) {
+  .agenda-card { flex-wrap: wrap; }
+  .agenda-card-badge { margin-left: 0; margin-top: 4px; }
+}
 
 /* ── RELATÓRIOS ── */
 .relat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -614,7 +864,60 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  :root {
+    --content-pad: 18px 20px;
+    --grid-gap: 14px;
+  }
+  body { font-size: 14px; }
+  .main-grid { grid-template-columns: 1fr; }
+  #page-dashboard .side-col {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .topbar { padding: 12px 20px; }
+  .topbar-title { font-size: 16px; }
+  .search-box input { width: 160px; font-size: 12px; }
+  .metrics-row { gap: 12px; margin-bottom: 18px; }
+  .metrics-row.metrics-row--dash {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metrics-row.metrics-row--dash .metric-card {
+    padding: 10px 12px;
+    gap: 4px;
+  }
+  .metrics-row.metrics-row--dash .metric-label { font-size: 9px; letter-spacing: 0.05em; }
+  .metrics-row.metrics-row--dash .metric-value { font-size: 22px; }
+  .metrics-row.metrics-row--dash .metric-sub { font-size: 10px; line-height: 1.3; }
+  .dash-queue-panel .panel-header { padding: 10px 14px; }
+  .dash-queue-hint { font-size: 10px; margin-top: 2px; max-width: 260px; line-height: 1.25; }
+  .dash-queue-count { font-size: 12px; }
+  .dash-queue-item { gap: 8px; padding: 6px 12px; }
+  .dash-queue-line { gap: 5px 8px; line-height: 1.25; }
+  .dash-queue-name { font-size: 13px; }
+  .dash-queue-meta-text { font-size: 10px; }
+  .dash-queue-item .risk-pill { font-size: 9px; padding: 2px 6px; }
+  .dash-queue-item .vital-badge { font-size: 10px; padding: 2px 6px; }
+  .dash-queue-actions { gap: 4px; }
+  .dash-queue-item .msg-btn { padding: 3px 7px; font-size: 10px; }
+  .dash-queue-more { padding: 6px 12px; font-size: 11px; }
+  .dash-queue-item .pat-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 11px !important;
+  }
+  #page-dashboard .alert-item { padding: 8px 14px; }
+  #page-dashboard .schedule-item { padding: 8px 14px; }
+  #page-dashboard .side-col .panel-header { padding: 12px 14px; }
+}
+@media (min-width: 1280px) {
+  :root {
+    --grid-sidebar: 360px;
+    --content-pad: 24px 32px;
+  }
+}
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .metrics-row { grid-template-columns: repeat(2, 1fr); }
@@ -639,9 +942,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   <aside class="sidebar" id="sidebar"></aside>
   <main class="main">
     <div class="topbar">
-      <div>
+      <div class="topbar-brand">
+        <img class="topbar-logo-img" src="logo.png" alt="Logo" onerror="tryLogoFallback(this)">
+        <div style="min-width:0">
         <div class="topbar-title" id="topbarTitle">Painel do dia</div>
         <div class="topbar-date" id="topbarDate"></div>
+        </div>
       </div>
       <div class="topbar-right">
         <div class="search-box" id="searchBoxWrap">
@@ -707,6 +1013,11 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 <!-- MODAL ADICIONAR MEDICAÇÃO -->
 <div class="modal-overlay med-overlay" id="medOverlay" onclick="if(event.target===this)closeAddMedModal()">
   <div class="modal modal-med" id="medModalRoot" onclick="event.stopPropagation()"></div>
+</div>
+
+<!-- MODAL NOVO AGENDAMENTO -->
+<div class="modal-overlay agenda-overlay" id="agendaOverlay" onclick="if(event.target===this)closeAgendaModal()">
+  <div class="modal modal-agenda" id="agendaModalRoot" onclick="event.stopPropagation()"></div>
 </div>
 
 <!-- ═══════════════════════════════════
@@ -1165,21 +1476,30 @@ const alertas = [
   { id:10,icon:'🩸', severity:'amber', msg:'Hemoglobina 9,2 g/dL — anemia moderada',        paciente:'Raimunda Ferreira Castro',detalhe:'Registrado em exame de 02/04',   ativo:true, pacienteId:15 },
 ];
 
-const agendaHoje = [
-  { hora:'08:00', paciente:'Maria Aparecida Santos',  tipo:'Retorno urgente · Presencial',   dotColor:'var(--red)',    badge:'andamento' },
-  { hora:'09:00', paciente:'Severino Costa Filho',    tipo:'Avaliação DPOC · Presencial',    dotColor:'var(--amber)', badge:'andamento' },
-  { hora:'10:00', paciente:'Carlos Eduardo Matos',    tipo:'Avaliação · Teleconsulta',       dotColor:'var(--amber)', badge:'andamento' },
-  { hora:'11:30', paciente:'Luísa Cardoso Neves',     tipo:'Pré-natal · Presencial',         dotColor:'var(--green)', badge:'realizado' },
-  { hora:'14:00', paciente:'João da Silva',            tipo:'Retorno · Presencial',           dotColor:'var(--border)',badge:'agendado' },
-  { hora:'15:00', paciente:'Hélio Nascimento Jr.',     tipo:'Ajuste insulina · Teleconsulta', dotColor:'var(--border)',badge:'agendado' },
-  { hora:'16:30', paciente:'Patricia Helena Souza',   tipo:'Check-up · Teleconsulta',        dotColor:'var(--border)',badge:'agendado' },
+/** Agenda clínica — mesma base usada no app do paciente (lembretes / confirmação) */
+let agendaNextId = 200;
+const profissionaisAgenda = [
+  { id: 1, nome: 'Dr. Carlos Mendes', especialidade: 'Cardiologia' },
+  { id: 2, nome: 'Dra. Ana Paula Ribeiro', especialidade: 'Medicina de família' },
+  { id: 3, nome: 'Dr. Ricardo Alves', especialidade: 'Endocrinologia' },
+  { id: 4, nome: 'Dra. Juliana Prado', especialidade: 'Ginecologia / Pré-natal' },
 ];
 
-const agendaAmanha = [
-  { hora:'08:30', paciente:'Antônia Gonçalves Ramos',  tipo:'Controle glicemia · Presencial', dotColor:'var(--border)',badge:'agendado' },
-  { hora:'10:00', paciente:'Marcos Vinícius Teixeira', tipo:'Pós-op 30 dias · Presencial',    dotColor:'var(--border)',badge:'agendado' },
-  { hora:'11:00', paciente:'Roberto Ferreira Lima',    tipo:'Revisão medicação · Presencial', dotColor:'var(--border)',badge:'agendado' },
-  { hora:'14:30', paciente:'Gilson Pereira Andrade',   tipo:'Rotina · Teleconsulta',          dotColor:'var(--border)',badge:'agendado' },
+let agendaHoje = [
+  { id:1, hora:'08:00', pacienteId:1,  paciente:'Maria Aparecida Santos',  medicoId:1, medico:'Dr. Carlos Mendes', tipo:'Retorno urgente · Presencial',   dotColor:'var(--red)',    badge:'andamento', syncApp:true },
+  { id:2, hora:'09:00', pacienteId:4,  paciente:'Severino Costa Filho',    medicoId:1, medico:'Dr. Carlos Mendes', tipo:'Avaliação DPOC · Presencial',    dotColor:'var(--amber)', badge:'andamento', syncApp:true },
+  { id:3, hora:'10:00', pacienteId:7,  paciente:'Carlos Eduardo Matos',    medicoId:2, medico:'Dra. Ana Paula Ribeiro', tipo:'Avaliação · Teleconsulta',       dotColor:'var(--amber)', badge:'andamento', syncApp:true },
+  { id:4, hora:'11:30', pacienteId:13, paciente:'Luísa Cardoso Neves',     medicoId:4, medico:'Dra. Juliana Prado', tipo:'Pré-natal · Presencial',         dotColor:'var(--green)', badge:'realizado', syncApp:true },
+  { id:5, hora:'14:00', pacienteId:5,  paciente:'João da Silva',            medicoId:1, medico:'Dr. Carlos Mendes', tipo:'Retorno · Presencial',           dotColor:'var(--border)',badge:'agendado', syncApp:true },
+  { id:6, hora:'15:00', pacienteId:9,  paciente:'Hélio Nascimento Jr.',     medicoId:3, medico:'Dr. Ricardo Alves', tipo:'Ajuste insulina · Teleconsulta', dotColor:'var(--border)',badge:'agendado', syncApp:true },
+  { id:7, hora:'16:30', pacienteId:11, paciente:'Patricia Helena Souza',   medicoId:2, medico:'Dra. Ana Paula Ribeiro', tipo:'Check-up · Teleconsulta',        dotColor:'var(--border)',badge:'agendado', syncApp:true },
+];
+
+let agendaAmanha = [
+  { id:8, hora:'08:30', pacienteId:3,  paciente:'Antônia Gonçalves Ramos',  medicoId:3, medico:'Dr. Ricardo Alves', tipo:'Controle glicemia · Presencial', dotColor:'var(--border)',badge:'agendado', syncApp:true },
+  { id:9, hora:'10:00', pacienteId:12, paciente:'Marcos Vinícius Teixeira', medicoId:1, medico:'Dr. Carlos Mendes', tipo:'Pós-op 30 dias · Presencial',    dotColor:'var(--border)',badge:'agendado', syncApp:true },
+  { id:10, hora:'11:00', pacienteId:2, paciente:'Roberto Ferreira Lima',    medicoId:1, medico:'Dr. Carlos Mendes', tipo:'Revisão medicação · Presencial', dotColor:'var(--border)',badge:'agendado', syncApp:true },
+  { id:11, hora:'14:30', pacienteId:16, paciente:'Gilson Pereira Andrade',   medicoId:2, medico:'Dra. Ana Paula Ribeiro', tipo:'Rotina · Teleconsulta',          dotColor:'var(--border)',badge:'agendado', syncApp:true },
 ];
 
 const exames = [
@@ -1269,6 +1589,14 @@ function dateString() {
 function timeString() {
   return new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
 }
+/** Rótulo de data para “hoje + N” (ex.: amanhã no painel Agenda) */
+function dateStringOffset(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const wd  = d.toLocaleDateString('pt-BR', { weekday: 'long' });
+  const day = d.toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+  return wd.charAt(0).toUpperCase() + wd.slice(1) + ', ' + day;
+}
 function calcMetricas() {
   const total    = pacientes.length;
   const criticos = pacientes.filter(p => p.status === 'critico').length;
@@ -1280,6 +1608,10 @@ function calcMetricas() {
 /* ── NAVIGATION ── */
 let paginaAtiva = 'dashboard';
 let paginaAnterior = null;
+let pacienteDetalheId = null;
+let agendaModalPrefillPacienteId = null;
+/** Filtro da página Agenda: todos | hoje | amanha | andamento */
+let agendaPageFiltro = 'todos';
 
 const pageTitles = {
   dashboard:'Painel do dia', pacientes:'Carteira de pacientes',
@@ -1297,21 +1629,36 @@ function navigateTo(page, extra) {
   const target = document.getElementById('page-' + page);
   if (target) target.classList.add('active');
   document.getElementById('topbarTitle').textContent = pageTitles[page] || page;
-  const showSearch = page === 'dashboard' || page === 'pacientes';
+  const showSearch = page === 'dashboard' || page === 'pacientes' || page === 'alertas';
   document.getElementById('searchBoxWrap').style.display = showSearch ? 'flex' : 'none';
   const searchInp = document.getElementById('searchInput');
   if (searchInp) {
-    searchInp.placeholder = page === 'dashboard' ? 'Buscar na fila do dia…' : 'Buscar na carteira…';
+    if (page === 'dashboard') searchInp.placeholder = 'Buscar na fila do dia…';
+    else if (page === 'pacientes') searchInp.placeholder = 'Buscar na carteira…';
+    else if (page === 'alertas') searchInp.placeholder = 'Buscar alerta ou paciente…';
   }
   renderSidebar();
   if (page === 'dashboard')   { metricsHtml(document.getElementById('metricsRow'), false); renderDashboardQueue(); renderSideCol(); }
   if (page === 'pacientes')   renderPacientesPage();
-  if (page === 'detalhe')     renderDetalhePage(extra);
+  if (page === 'detalhe') {
+    pacienteDetalheId = extra;
+    renderDetalhePage(extra);
+  }
   if (page === 'alertas')     renderAlertasPage();
   if (page === 'agenda')      renderAgendaPage();
   if (page === 'relatorios')  renderRelatoriosPage();
   if (page === 'exames')      renderExamesPage();
   if (page === 'medicacoes')  renderMedicacoesPage();
+}
+
+/** Logo na pasta do index: logo.png ou logo.svg */
+function tryLogoFallback(img) {
+  if (!img.dataset.logoStep) {
+    img.dataset.logoStep = '1';
+    img.src = 'logo.svg';
+    return;
+  }
+  img.style.display = 'none';
 }
 
 /* ── SIDEBAR ── */
@@ -1327,6 +1674,7 @@ function renderSidebar() {
   };
   el.innerHTML = `
     <div class="sidebar-logo">
+      <img class="brand-logo-img" src="logo.png" alt="${medico.clinica}" onerror="tryLogoFallback(this)">
       <div class="logo-name">${medico.clinica}</div>
       <div class="logo-sub">Painel Clínico</div>
     </div>
@@ -1356,36 +1704,55 @@ function metricsHtml(el, showAll) {
   const activePage = showAll ? 'pacientes' : 'dashboard';
   const isActive = f => filtroAtivo === f ? 'filter-active' : '';
 
-  const firstLabel = showAll ? 'Total pacientes' : 'Total na carteira';
-  const firstSub = showAll
-    ? '↑ <span class="up">+5</span> este mês'
-    : 'Lista completa na aba Pacientes';
-
-  el.innerHTML = `
+  if (showAll) {
+    el.classList.remove('metrics-row--dash');
+    el.innerHTML = `
     <div class="metric-card ${isActive('todos')}" onclick="setFiltroCard('todos','${activePage}')">
       <div class="metric-accent" style="background:var(--purple)"></div>
-      <div class="metric-label">${firstLabel}</div>
+      <div class="metric-label">Total pacientes</div>
       <div class="metric-value">${m.total}</div>
-      <div class="metric-sub">${firstSub}</div>
+      <div class="metric-sub">↑ <span class="up">+5</span> este mês</div>
     </div>
     <div class="metric-card ${isActive('critico')}" onclick="setFiltroCard('critico','${activePage}')">
       <div class="metric-accent" style="background:var(--red)"></div>
       <div class="metric-label">Críticos agora</div>
       <div class="metric-value" style="color:var(--red)">${m.criticos}</div>
-      <div class="metric-sub"><span class="up">${showAll ? 'Requerem atenção' : 'Ação imediata'}</span></div>
+      <div class="metric-sub"><span class="up">Requerem atenção</span></div>
     </div>
     <div class="metric-card ${isActive('atencao')}" onclick="setFiltroCard('atencao','${activePage}')">
       <div class="metric-accent" style="background:var(--amber)"></div>
       <div class="metric-label">Em observação</div>
       <div class="metric-value" style="color:var(--amber)">${m.atencao}</div>
-      <div class="metric-sub">${showAll ? 'Parâmetro fora do ideal' : 'Monitorar de perto'}</div>
+      <div class="metric-sub">Parâmetro fora do ideal</div>
     </div>
     <div class="metric-card ${isActive('estavel')}" onclick="setFiltroCard('estavel','${activePage}')">
       <div class="metric-accent" style="background:var(--green)"></div>
-      <div class="metric-label">${showAll ? 'Estáveis' : 'Sem intercorrência'}</div>
+      <div class="metric-label">Estáveis</div>
       <div class="metric-value" style="color:var(--green)">${m.estaveis}</div>
       <div class="metric-sub"><span class="down">${m.pct}%</span> da carteira</div>
     </div>`;
+  } else {
+    el.classList.add('metrics-row--dash');
+    el.innerHTML = `
+    <div class="metric-card ${isActive('critico')}" onclick="setFiltroCard('critico','${activePage}')">
+      <div class="metric-accent" style="background:var(--red)"></div>
+      <div class="metric-label">Críticos agora</div>
+      <div class="metric-value" style="color:var(--red)">${m.criticos}</div>
+      <div class="metric-sub"><span class="up">Ação imediata</span></div>
+    </div>
+    <div class="metric-card ${isActive('atencao')}" onclick="setFiltroCard('atencao','${activePage}')">
+      <div class="metric-accent" style="background:var(--amber)"></div>
+      <div class="metric-label">Em observação</div>
+      <div class="metric-value" style="color:var(--amber)">${m.atencao}</div>
+      <div class="metric-sub">Monitorar de perto</div>
+    </div>
+    <div class="metric-card ${isActive('estavel')}" onclick="setFiltroCard('estavel','${activePage}')">
+      <div class="metric-accent" style="background:var(--green)"></div>
+      <div class="metric-label">Sem intercorrência</div>
+      <div class="metric-value" style="color:var(--green)">${m.estaveis}</div>
+      <div class="metric-sub"><span class="down">${m.pct}%</span> da carteira</div>
+    </div>`;
+  }
 }
 
 function setFiltroCard(filtro, page) {
@@ -1434,6 +1801,8 @@ function patientAvatarHtml(p, size=34, fontSize=12) {
 
 let filtroAtivo = 'todos';
 let termoBusca  = '';
+/** Filtro da página Alertas: todos | critico | aviso */
+let alertasPageFiltro = 'todos';
 
 function patientRowHtml(p, showMsg) {
   const actions = showMsg
@@ -1481,41 +1850,19 @@ function getList(onlyCritical) {
   return lista;
 }
 
-function filterTabsHtml() {
-  return ['todos','critico','atencao','estavel'].map(k => {
-    const labels = { todos:'Todos', critico:'Críticos', atencao:'Atenção', estavel:'Estáveis' };
-    return `<button class="filter-tab ${filtroAtivo===k?'active':''}" onclick="setFiltro('${k}')">${labels[k]}</button>`;
-  }).join('');
-}
-
-function setFiltro(k) {
-  filtroAtivo = k;
-  if (paginaAtiva === 'dashboard') {
-    renderDashboardQueue();
-    metricsHtml(document.getElementById('metricsRow'), false);
-  }
-  if (paginaAtiva === 'pacientes') {
-    renderPacientesPage();
-    metricsHtml(document.getElementById('metricsRowPac'), true);
-  }
-}
-
 /* ── DASHBOARD (fila resumida — não duplica a tabela de Pacientes) ── */
 const DASH_QUEUE_MAX = 7;
 
 function dashQueueItemHtml(p) {
   return `
     <div class="dash-queue-item" onclick="openDetalhe(${p.id})">
-      ${patientAvatarHtml(p, 40, 13)}
+      ${patientAvatarHtml(p, 36, 12)}
       <div class="dash-queue-main">
-        <div class="dash-queue-top">
+        <div class="dash-queue-line">
           <span class="dash-queue-name">${p.nome}</span>
           <span class="risk-pill ${pillClass(p.status)}">${pillLabel(p.status)}</span>
-        </div>
-        <div class="dash-queue-meta">
           <span class="vital-badge ${p.paColor}">${p.pressao}</span>
-          <span>Último reg.: ${p.ultimoReg}</span>
-          <span>· ${p.medicacao}</span>
+          <span class="dash-queue-meta-text">${p.ultimoReg} · ${p.medicacao}</span>
         </div>
       </div>
       <div class="dash-queue-actions">
@@ -1545,15 +1892,17 @@ function renderDashboardQueue() {
     ? lista.map(dashQueueItemHtml).join('')
     : `<div class="empty-state">Nenhum paciente neste filtro.</div>`;
 
-  document.getElementById('patientPanel').innerHTML = `
+  const panel = document.getElementById('patientPanel');
+  panel.className = 'panel dash-queue-panel';
+  panel.innerHTML = `
     <div class="panel-header">
       <div>
         <div class="panel-title">Fila de atenção${titleSuffix}</div>
-        <div class="dash-queue-hint">Até ${DASH_QUEUE_MAX} pacientes para ação rápida. Métricas acima filtram esta fila.</div>
+        <div class="dash-queue-hint">Até ${DASH_QUEUE_MAX} na tela · cartões acima filtram · total da carteira em Pacientes</div>
       </div>
-      <div style="text-align:right">
+      <div style="text-align:right;flex-shrink:0">
         <div class="dash-queue-count">${fullList.length} no filtro</div>
-        <div style="font-size:11px;color:var(--purple);font-weight:500;cursor:pointer;margin-top:6px" onclick="navigateTo('pacientes')">Carteira completa →</div>
+        <div style="font-size:10px;color:var(--purple);font-weight:500;cursor:pointer;margin-top:3px" onclick="navigateTo('pacientes')">Carteira completa →</div>
       </div>
     </div>
     <div class="dash-queue-list">${listHtml}</div>
@@ -1577,16 +1926,19 @@ function renderSideCol() {
   }).join('');
 
   const agendaHtml = agendaHoje.slice(0,5).map(c => {
-    const pac = pacientes.find(x => x.nome === c.paciente);
+    const pac = (c.pacienteId && pacientes.find(x => x.id === c.pacienteId)) || pacientes.find(x => x.nome === c.paciente);
     const avatarEl = pac
       ? `<div style="flex-shrink:0">${patientAvatarHtml(pac, 28, 10)}</div>`
       : `<div class="schedule-time">${c.hora}</div>`;
+    const med = c.medico || medico.nome;
+    const open = pac ? `onclick="openDetalhe(${pac.id})"` : '';
     return `
-    <div class="schedule-item">
+    <div class="schedule-item" ${open} style="${pac ? 'cursor:pointer' : ''}">
       ${avatarEl}
       <div style="flex:1;min-width:0">
         <div class="schedule-name">${c.paciente}</div>
-        <div class="schedule-type">${c.hora} · ${c.tipo}</div>
+        <div class="schedule-type">${c.hora} · ${med}</div>
+        <div class="schedule-kind">${c.tipo}</div>
       </div>
       <div class="schedule-dot" style="background:${c.dotColor}"></div>
     </div>`;
@@ -1620,9 +1972,8 @@ function renderPacientesPage() {
     <div class="panel-header">
       <div>
         <div class="panel-title">Todos os pacientes — ${pacientes.length} cadastrados</div>
-        <div class="pacientes-page-hint">Tabela completa: colunas de pressão, medicação, último registro e risco. Use as abas e os cartões acima para filtrar.</div>
+        <div class="pacientes-page-hint">Tabela completa: colunas de pressão, medicação, último registro e risco. Filtre pela linha de cartões KPI acima.</div>
       </div>
-      <div class="filter-tabs">${filterTabsHtml()}</div>
     </div>
     <div class="patient-table">
       ${tableHeaderHtml()}
@@ -1817,9 +2168,9 @@ function renderDetalhePage(id) {
             <div class="detail-card-value" style="font-size:16px">${c.value}</div>
           </div>`).join('')}
       </div>
-      <div style="margin-top:12px;display:flex;gap:10px">
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-primary" onclick="openMsgModal(${p.id})">✉ Enviar mensagem</button>
-        <button class="btn-outline">📅 Agendar consulta</button>
+        <button type="button" class="btn-outline" onclick="openAgendaModal(${p.id})">📅 Agendar consulta</button>
       </div>`;
   }
 
@@ -1835,7 +2186,10 @@ function renderDetalhePage(id) {
         <div class="patient-detail-meta">${p.idade} anos · ${p.sexo==='F'?'Feminino':'Masculino'} · ${p.condicoes}</div>
         <div class="patient-detail-meta" style="margin-top:4px">Último registro: ${p.ultimoReg} · Próxima consulta: ${p.proximaConsulta}</div>
       </div>
-      <button class="msg-btn" onclick="openMsgModal(${p.id})" style="align-self:flex-start">✉ Mensagem</button>
+      <div style="display:flex;flex-direction:column;gap:8px;align-self:flex-start">
+        <button type="button" class="btn-primary" style="white-space:nowrap" onclick="openAgendaModal(${p.id})">📅 Agendar</button>
+        <button class="msg-btn" onclick="openMsgModal(${p.id})">✉ Mensagem</button>
+      </div>
     </div>
     <div class="detail-filter-bar">${catBtns}</div>
     ${bodyHtml}`;
@@ -2288,43 +2642,153 @@ function submitAddMedForm() {
 }
 
 /* ── ALERTAS PAGE ── */
+function alertasFiltrarBusca(lista) {
+  const t = termoBusca.trim().toLowerCase();
+  if (!t) return lista;
+  return lista.filter(a =>
+    a.msg.toLowerCase().includes(t) ||
+    a.paciente.toLowerCase().includes(t) ||
+    (a.detalhe && a.detalhe.toLowerCase().includes(t))
+  );
+}
+
+function setAlertasPageFiltro(f) {
+  if (f !== 'todos' && f !== 'critico' && f !== 'aviso') return;
+  alertasPageFiltro = f;
+  renderAlertasPage();
+}
+
+function alertPageItemHtml(a) {
+  const pac = pacientes.find(p => p.id === a.pacienteId);
+  const itemSev = a.severity === 'red' ? 'crit' : 'warn';
+  const pillClass = a.severity === 'red' ? 'alert-sev-pill--crit' : 'alert-sev-pill--warn';
+  const pillLabel = a.severity === 'red' ? 'Crítico' : 'Aviso';
+  const itemClass = a.severity === 'red' ? 'alert-page-item--crit' : 'alert-page-item--warn';
+  const avatarBlock = pac
+    ? `<div class="alert-page-icon-wrap">${patientAvatarHtml(pac, 40, 12)}</div>`
+    : `<div class="alert-page-icon-wrap"><div class="alert-page-icon ${a.severity === 'red' ? 'red' : 'amber'}">${a.icon}</div></div>`;
+  return `
+    <div class="alert-page-item ${itemClass}" onclick="openDetalhe(${a.pacienteId})">
+      ${avatarBlock}
+      <div class="alert-page-main">
+        <div class="alert-page-badges">
+          <span class="alert-sev-pill ${pillClass}">${pillLabel}</span>
+        </div>
+        <div class="alert-page-msg">${a.msg}</div>
+        <div class="alert-page-patient">${a.paciente}</div>
+        <div class="alert-page-detalhe">${a.detalhe}</div>
+      </div>
+      <div class="alert-page-actions">
+        <button type="button" class="action-btn" onclick="event.stopPropagation();openDetalhe(${a.pacienteId})">Ver →</button>
+        <button type="button" class="msg-btn" onclick="event.stopPropagation();openMsgModal(${a.pacienteId})">✉ Msg</button>
+        <button type="button" class="dismiss-btn" onclick="event.stopPropagation();dismissAlert(${a.id})">Dispensar</button>
+      </div>
+    </div>`;
+}
+
 function renderAlertasPage() {
-  const ativos   = alertas.filter(a => a.ativo);
+  const ativosSrc = alertas.filter(a => a.ativo);
+  const ativos = alertasFiltrarBusca(ativosSrc);
   const criticos = ativos.filter(a => a.severity === 'red');
-  const avisos   = ativos.filter(a => a.severity === 'amber');
+  const avisos = ativos.filter(a => a.severity === 'amber');
 
-  const sectionHtml = lista => lista.map(a => `
-    <div class="alert-page-item" onclick="openDetalhe(${a.pacienteId})">
-      <div class="alert-page-icon ${a.severity}">${a.icon}</div>
-      <div style="flex:1">
-        <div class="alert-page-title">${a.msg}</div>
-        <div class="alert-page-sub">${a.paciente} · ${a.detalhe}</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="msg-btn" onclick="event.stopPropagation();openMsgModal(${a.pacienteId})">✉ Msg</button>
-        <button class="dismiss-btn" onclick="event.stopPropagation();dismissAlert(${a.id})">Dispensar</button>
-      </div>
-    </div>`).join('');
-
-  document.getElementById('alertasPage').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
-      <div class="metric-card"><div class="metric-accent" style="background:var(--red)"></div>
+  const fa = f => (alertasPageFiltro === f ? 'filter-active' : '');
+  const metricsRow = `
+    <div class="metrics-row metrics-row--alertas">
+      <button type="button" class="metric-card ${fa('critico')}" data-alertas-filter="critico">
+        <div class="metric-accent" style="background:var(--red)"></div>
         <div class="metric-label">Críticos</div>
         <div class="metric-value" style="color:var(--red)">${criticos.length}</div>
-        <div class="metric-sub"><span class="up">Ação imediata</span></div></div>
-      <div class="metric-card"><div class="metric-accent" style="background:var(--amber)"></div>
+        <div class="metric-sub"><span class="up">Ação imediata</span></div>
+      </button>
+      <button type="button" class="metric-card ${fa('aviso')}" data-alertas-filter="aviso">
+        <div class="metric-accent" style="background:var(--amber)"></div>
         <div class="metric-label">Avisos</div>
         <div class="metric-value" style="color:var(--amber)">${avisos.length}</div>
-        <div class="metric-sub">Monitorar</div></div>
-      <div class="metric-card"><div class="metric-accent" style="background:var(--green)"></div>
-        <div class="metric-label">Total ativos</div>
+        <div class="metric-sub">Monitorar de perto</div>
+      </button>
+      <button type="button" class="metric-card ${fa('todos')}" data-alertas-filter="todos">
+        <div class="metric-accent" style="background:var(--green)"></div>
+        <div class="metric-label">Todos ativos</div>
         <div class="metric-value">${ativos.length}</div>
-        <div class="metric-sub"><span class="down">Gerados hoje</span></div></div>
-    </div>
-    <div style="font-size:11px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">🚨 Críticos (${criticos.length})</div>
-    ${sectionHtml(criticos)}
-    <div style="font-size:11px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.07em;margin:16px 0 8px">⚠️ Avisos (${avisos.length})</div>
-    ${sectionHtml(avisos)}`;
+        <div class="metric-sub">Lista completa (críticos + avisos)</div>
+      </button>
+    </div>`;
+
+  if (ativosSrc.length === 0) {
+    document.getElementById('alertasPage').innerHTML = `
+      ${metricsRow}
+      <div class="panel alertas-main-panel">
+        <div class="alertas-zero">
+          <div class="alertas-zero-icon">✓</div>
+          <div class="alertas-zero-title">Nenhum alerta ativo</div>
+          <p class="alertas-zero-text">Quando houver sinais vitais, estoque ou exames fora do padrão, eles aparecem aqui para triagem rápida.</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (ativos.length === 0) {
+    document.getElementById('alertasPage').innerHTML = `
+      ${metricsRow}
+      <div class="panel alertas-main-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Triagem de alertas</div>
+            <div class="pacientes-page-hint">Nenhum alerta corresponde à busca atual.</div>
+          </div>
+        </div>
+        <div class="alertas-panel-body">
+          <div class="alertas-empty-section" style="padding:40px 20px 32px">
+            Tente outro termo ou limpe o campo de busca na barra superior.
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const showCrit = alertasPageFiltro === 'todos' || alertasPageFiltro === 'critico';
+  const showWarn = alertasPageFiltro === 'todos' || alertasPageFiltro === 'aviso';
+
+  const blockCrit = showCrit
+    ? `<div class="alertas-section alertas-section--crit">
+        <div class="alertas-section-head">
+          <span class="alertas-section-title">🚨 Alertas críticos</span>
+          <span class="alertas-section-count">${criticos.length} no filtro</span>
+        </div>
+        <div class="alertas-section-list">
+          ${criticos.length
+            ? criticos.map(alertPageItemHtml).join('')
+            : '<div class="alertas-empty-section">Nenhum alerta crítico com os critérios atuais.</div>'}
+        </div>
+      </div>`
+    : '';
+
+  const blockWarn = showWarn
+    ? `<div class="alertas-section alertas-section--warn">
+        <div class="alertas-section-head">
+          <span class="alertas-section-title">⚠️ Avisos e monitoramento</span>
+          <span class="alertas-section-count">${avisos.length} no filtro</span>
+        </div>
+        <div class="alertas-section-list">
+          ${avisos.length
+            ? avisos.map(alertPageItemHtml).join('')
+            : '<div class="alertas-empty-section">Nenhum aviso com os critérios atuais.</div>'}
+        </div>
+      </div>`
+    : '';
+
+  document.getElementById('alertasPage').innerHTML = `
+    ${metricsRow}
+    <div class="panel alertas-main-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Triagem de alertas</div>
+          <div class="pacientes-page-hint">Escolha um cartão acima (Críticos, Avisos ou Todos). Clique num alerta para abrir o prontuário ou dispensar após resolução.</div>
+        </div>
+      </div>
+      <div class="alertas-panel-body">${blockCrit}${blockWarn}</div>
+    </div>`;
 }
 
 function dismissAlert(id) {
@@ -2332,40 +2796,260 @@ function dismissAlert(id) {
   if (a) a.ativo = false;
   renderAlertasPage();
   renderSideCol();
+  renderSidebar();
 }
 
 /* ── AGENDA PAGE ── */
-function renderAgendaPage() {
+function setAgendaPageFiltro(f) {
+  if (!['todos', 'hoje', 'amanha', 'andamento'].includes(f)) return;
+  agendaPageFiltro = f;
+  renderAgendaPage();
+}
+
+function agendaCardHtml(c) {
   const badgeLabel = { realizado:'Realizado', andamento:'Em andamento', agendado:'Agendado' };
-  const agendaCards = lista => lista.map(c => `
-    <div class="agenda-card">
+  const pac = (c.pacienteId && pacientes.find(x => x.id === c.pacienteId)) || pacientes.find(x => x.nome === c.paciente);
+  const openAct = pac ? `onclick="openDetalhe(${pac.id})"` : '';
+  const appRow = c.syncApp !== false
+    ? '<div class="agenda-card-app">📱 App paciente</div>' : '';
+  return `
+    <div class="agenda-card" ${openAct}>
       <div class="agenda-card-time">${c.hora}</div>
-      <div style="flex:1">
+      ${pac ? `<div class="agenda-card-avatar">${patientAvatarHtml(pac, 36, 11)}</div>` : ''}
+      <div class="agenda-card-body">
         <div class="agenda-card-name">${c.paciente}</div>
+        <div class="agenda-card-med">${c.medico || medico.nome}</div>
         <div class="agenda-card-type">${c.tipo}</div>
+        ${appRow}
       </div>
-      <span class="agenda-card-badge ${c.badge}">${badgeLabel[c.badge]}</span>
-    </div>`).join('');
+      <span class="agenda-card-badge ${c.badge}">${badgeLabel[c.badge] || c.badge}</span>
+    </div>`;
+}
+
+function renderAgendaPage() {
+  const hoje = [...agendaHoje].sort((a, b) => a.hora.localeCompare(b.hora));
+  const amanha = [...agendaAmanha].sort((a, b) => a.hora.localeCompare(b.hora));
+  const realizadas = hoje.filter(c => c.badge === 'realizado').length;
+  const andamentoN = hoje.filter(c => c.badge === 'andamento').length;
+  const totalLista = hoje.length + amanha.length;
+
+  const hojeFiltrado = agendaPageFiltro === 'andamento'
+    ? hoje.filter(c => c.badge === 'andamento')
+    : hoje;
+
+  const showBlocoHoje = agendaPageFiltro === 'todos' || agendaPageFiltro === 'hoje' || agendaPageFiltro === 'andamento';
+  const showBlocoAmanha = agendaPageFiltro === 'todos' || agendaPageFiltro === 'amanha';
+
+  const fa = f => (agendaPageFiltro === f ? 'filter-active' : '');
+
+  const labelHoje = agendaPageFiltro === 'andamento'
+    ? `Em andamento — ${dateString()}`
+    : `Hoje — ${dateString()}`;
+
+  const blocoHoje = showBlocoHoje
+    ? `<div class="agenda-day-section">
+        <div class="agenda-day-label">${labelHoje}</div>
+        ${hojeFiltrado.length
+          ? hojeFiltrado.map(agendaCardHtml).join('')
+          : `<div class="empty-state">${agendaPageFiltro === 'andamento' ? 'Nenhuma consulta em andamento neste momento.' : 'Nenhum horário para hoje.'}</div>`}
+      </div>`
+    : '';
+
+  const blocoAmanha = showBlocoAmanha
+    ? `<div class="agenda-day-section">
+        <div class="agenda-day-label">Amanhã — ${dateStringOffset(1)}</div>
+        ${amanha.length
+          ? amanha.map(agendaCardHtml).join('')
+          : '<div class="empty-state">Nenhum horário para amanhã.</div>'}
+      </div>`
+    : '';
 
   document.getElementById('agendaPage').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
-      <div class="metric-card"><div class="metric-accent" style="background:var(--purple)"></div>
-        <div class="metric-label">Consultas hoje</div>
-        <div class="metric-value">${agendaHoje.length}</div>
-        <div class="metric-sub">${agendaHoje.filter(c=>c.badge==='realizado').length} realizadas</div></div>
-      <div class="metric-card"><div class="metric-accent" style="background:var(--blue)"></div>
-        <div class="metric-label">Consultas amanhã</div>
-        <div class="metric-value">${agendaAmanha.length}</div>
-        <div class="metric-sub">Pré-agendadas</div></div>
-      <div class="metric-card"><div class="metric-accent" style="background:var(--amber)"></div>
-        <div class="metric-label">Em andamento</div>
-        <div class="metric-value" style="color:var(--amber)">${agendaHoje.filter(c=>c.badge==='andamento').length}</div>
-        <div class="metric-sub">Neste momento</div></div>
+    <div class="agenda-sync-banner">
+      <span class="agenda-sync-icon">📱</span>
+      <div>
+        <strong>Mesma agenda no celular do paciente.</strong>
+        O que você agenda aqui (ou pelo perfil) reflete no app VitaClinic do paciente: lembretes, confirmação e aviso de alterações — quando a sincronização estiver ligada no ambiente real.
+      </div>
     </div>
-    <div class="agenda-day-label">Hoje — ${dateString()}</div>
-    ${agendaCards(agendaHoje)}
-    <div class="agenda-day-label">Amanhã — Terça-feira, 8 de abril de 2025</div>
-    ${agendaCards(agendaAmanha)}`;
+    <div class="metrics-row metrics-row--agenda">
+      <button type="button" class="metric-card ${fa('todos')}" data-agenda-filter="todos">
+        <div class="metric-accent" style="background:var(--green)"></div>
+        <div class="metric-label">Ver tudo</div>
+        <div class="metric-value">${totalLista}</div>
+        <div class="metric-sub">Hoje + amanhã</div>
+      </button>
+      <button type="button" class="metric-card ${fa('hoje')}" data-agenda-filter="hoje">
+        <div class="metric-accent" style="background:var(--purple)"></div>
+        <div class="metric-label">Hoje</div>
+        <div class="metric-value">${hoje.length}</div>
+        <div class="metric-sub">${realizadas} realizadas</div>
+      </button>
+      <button type="button" class="metric-card ${fa('amanha')}" data-agenda-filter="amanha">
+        <div class="metric-accent" style="background:var(--blue)"></div>
+        <div class="metric-label">Amanhã</div>
+        <div class="metric-value">${amanha.length}</div>
+        <div class="metric-sub">Pré-agendadas</div>
+      </button>
+      <button type="button" class="metric-card ${fa('andamento')}" data-agenda-filter="andamento">
+        <div class="metric-accent" style="background:var(--amber)"></div>
+        <div class="metric-label">Em andamento</div>
+        <div class="metric-value" style="color:var(--amber)">${andamentoN}</div>
+        <div class="metric-sub">Agora (hoje)</div>
+      </button>
+    </div>
+    <div class="panel agenda-main-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Agenda da clínica</div>
+          <div class="pacientes-page-hint">Filtre pelos <strong>cartões acima</strong>. Use <strong>Novo agendamento</strong> ou <strong>Agendar</strong> no perfil do paciente.</div>
+        </div>
+        <button type="button" class="btn-primary" onclick="openAgendaModal()">+ Novo agendamento</button>
+      </div>
+      ${blocoHoje}${blocoAmanha}
+    </div>`;
+}
+
+function closeAgendaModal() {
+  document.getElementById('agendaOverlay').classList.remove('open');
+  agendaModalPrefillPacienteId = null;
+}
+
+function openAgendaModal(pacienteId) {
+  agendaModalPrefillPacienteId = pacienteId != null && pacienteId !== '' ? Number(pacienteId) : null;
+  if (Number.isNaN(agendaModalPrefillPacienteId)) agendaModalPrefillPacienteId = null;
+  renderAgendaModalForm();
+  document.getElementById('agendaOverlay').classList.add('open');
+}
+
+function renderAgendaModalForm() {
+  const pid = agendaModalPrefillPacienteId;
+  const optsPac = pacientes.map(p =>
+    `<option value="${p.id}"${pid === p.id ? ' selected' : ''}>${p.nome} · ${p.idade} a.</option>`
+  ).join('');
+  const optsMed = profissionaisAgenda.map(m =>
+    `<option value="${m.id}">${m.nome} — ${m.especialidade}</option>`
+  ).join('');
+  const motivoOpts = [
+    ['retorno', 'Retorno'],
+    ['primeira', 'Primeira consulta'],
+    ['urgencia', 'Urgência'],
+    ['exame', 'Exame / resultado'],
+    ['ajuste', 'Ajuste de medicação'],
+    ['checkup', 'Check-up'],
+    ['outro', 'Outro'],
+  ].map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+
+  document.getElementById('agendaModalRoot').innerHTML = `
+    <div class="modal-header">
+      <div class="agenda-modal-title">Novo agendamento</div>
+      <button type="button" class="modal-close" onclick="closeAgendaModal()" aria-label="Fechar">×</button>
+    </div>
+    <form style="display:flex;flex-direction:column;flex:1;min-height:0" onsubmit="submitAgendaForm(event)">
+      <div class="med-form-body">
+        <p class="med-form-hint" style="margin-top:4px">
+          O agendamento entra na agenda da clínica e fica disponível para o paciente no app (lembrete e confirmação), no fluxo integrado.
+        </p>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormDia">Dia</label>
+          <select class="med-form-select" id="agendaFormDia" required>
+            <option value="hoje">Hoje — ${dateString()}</option>
+            <option value="amanha">Amanhã — ${dateStringOffset(1)}</option>
+          </select>
+        </div>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormHora">Horário</label>
+          <input class="med-form-input" type="time" id="agendaFormHora" value="09:00" required />
+        </div>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormPaciente">Paciente</label>
+          <select class="med-form-select" id="agendaFormPaciente" required>${optsPac}</select>
+        </div>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormMedico">Profissional</label>
+          <select class="med-form-select" id="agendaFormMedico" required>${optsMed}</select>
+        </div>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormMotivo">Tipo de atendimento</label>
+          <select class="med-form-select" id="agendaFormMotivo" required>${motivoOpts}</select>
+        </div>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormModalidade">Modalidade</label>
+          <select class="med-form-select" id="agendaFormModalidade" required>
+            <option value="presencial">Presencial</option>
+            <option value="tele">Teleconsulta</option>
+          </select>
+        </div>
+        <div class="med-form-field">
+          <label class="med-form-label" for="agendaFormObs">Observações (opcional)</label>
+          <input class="med-form-input" type="text" id="agendaFormObs" placeholder="Ex.: jejum, trazer exames…" maxlength="120" />
+        </div>
+      </div>
+      <div class="med-form-footer">
+        <button type="button" class="btn-outline" onclick="closeAgendaModal()">Cancelar</button>
+        <button type="submit" class="btn-primary">Confirmar agendamento</button>
+      </div>
+    </form>`;
+}
+
+function submitAgendaForm(ev) {
+  ev.preventDefault();
+  const dia = document.getElementById('agendaFormDia').value;
+  const horaRaw = document.getElementById('agendaFormHora').value;
+  const pid = parseInt(document.getElementById('agendaFormPaciente').value, 10);
+  const mid = parseInt(document.getElementById('agendaFormMedico').value, 10);
+  const motivo = document.getElementById('agendaFormMotivo').value;
+  const mod = document.getElementById('agendaFormModalidade').value;
+  const obs = (document.getElementById('agendaFormObs').value || '').trim();
+
+  const p = pacientes.find(x => x.id === pid);
+  const m = profissionaisAgenda.find(x => x.id === mid);
+  if (!p || !m || !horaRaw) {
+    alert('Preencha paciente, profissional e horário.');
+    return;
+  }
+
+  const hora = horaRaw.length >= 5 ? horaRaw.slice(0, 5) : horaRaw;
+  const labelMod = mod === 'tele' ? 'Teleconsulta' : 'Presencial';
+  const tipoLabels = {
+    retorno: 'Retorno', primeira: 'Primeira consulta', urgencia: 'Urgência', exame: 'Exame / resultado',
+    ajuste: 'Ajuste de medicação', checkup: 'Check-up', outro: 'Consulta',
+  };
+  let tipo = `${tipoLabels[motivo] || 'Consulta'} · ${labelMod}`;
+  if (obs) tipo += ` · ${obs}`;
+
+  const item = {
+    id: agendaNextId++,
+    hora,
+    paciente: p.nome,
+    pacienteId: p.id,
+    medico: m.nome,
+    medicoId: m.id,
+    tipo,
+    dotColor: 'var(--border)',
+    badge: 'agendado',
+    syncApp: true,
+  };
+
+  const alvo = dia === 'amanha' ? agendaAmanha : agendaHoje;
+  alvo.push(item);
+  alvo.sort((a, b) => a.hora.localeCompare(b.hora));
+
+  const dataHist = new Date().toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  const diaTxt = dia === 'amanha' ? 'amanhã' : 'hoje';
+  p.historico.unshift({
+    data: dataHist,
+    tipo: 'green',
+    msg: `Consulta agendada: ${tipoLabels[motivo] || 'Consulta'} — ${hora} (${diaTxt}) com ${m.nome}. Sincronizado com o app do paciente.`,
+  });
+  p.proximaConsulta = `${hora} · ${dia === 'amanha' ? 'Amanhã' : 'Hoje'} · ${labelMod}`;
+
+  closeAgendaModal();
+  if (paginaAtiva === 'agenda') renderAgendaPage();
+  if (paginaAtiva === 'dashboard') renderSideCol();
+  if (paginaAtiva === 'detalhe' && pacienteDetalheId) renderDetalhePage(pacienteDetalheId);
 }
 
 /* ── RELATÓRIOS PAGE ── */
@@ -2533,6 +3217,28 @@ document.getElementById('searchInput').addEventListener('input', function() {
   termoBusca = this.value;
   if (paginaAtiva === 'dashboard') renderDashboardQueue();
   if (paginaAtiva === 'pacientes') renderPacientesPage();
+  if (paginaAtiva === 'alertas') renderAlertasPage();
+});
+
+/* Filtros da página Alertas: botões são recriados a cada render — delegação no container */
+document.getElementById('alertasPage').addEventListener('click', function(ev) {
+  const btn = ev.target.closest('[data-alertas-filter]');
+  if (!btn || !this.contains(btn)) return;
+  const f = btn.getAttribute('data-alertas-filter');
+  if (f === 'todos' || f === 'critico' || f === 'aviso') {
+    ev.preventDefault();
+    setAlertasPageFiltro(f);
+  }
+});
+
+document.getElementById('agendaPage').addEventListener('click', function(ev) {
+  const btn = ev.target.closest('[data-agenda-filter]');
+  if (!btn || !this.contains(btn)) return;
+  const f = btn.getAttribute('data-agenda-filter');
+  if (f === 'todos' || f === 'hoje' || f === 'amanha' || f === 'andamento') {
+    ev.preventDefault();
+    setAgendaPageFiltro(f);
+  }
 });
 
 /* ── INIT ── */
