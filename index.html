@@ -211,6 +211,18 @@ button.metric-card:focus-visible {
 .pat-avatar.ring-red   .status-ring { border-color: var(--red); }
 .pat-avatar.ring-amber .status-ring { border-color: var(--amber); }
 .pat-avatar.ring-green .status-ring { border-color: var(--green); }
+.pat-avatar--photo {
+  background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+  padding: 0;
+  overflow: hidden;
+}
+.pat-avatar--photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
 
 /* metric card clickable filter */
 .metric-card { cursor: pointer; transition: box-shadow 0.15s, transform 0.12s; }
@@ -869,6 +881,41 @@ button.metric-card:focus-visible {
 @media (max-width: 520px) {
   .cad-pac-grid { grid-template-columns: 1fr; }
 }
+.cad-pac-foto-row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.cad-pac-foto-preview {
+  width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--border); flex-shrink: 0; background: var(--bg);
+}
+.cad-pac-foto-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cad-pac-foto-input-hidden { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+
+.exame-perfil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.exame-perfil-card {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--white);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.exame-perfil-card-head {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  font-size: 12px; font-weight: 600; color: var(--text);
+}
+.exame-perfil-card-meta { font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 4px; }
+.exame-perfil-preview {
+  min-height: 120px; max-height: 180px; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.exame-perfil-preview img { max-width: 100%; max-height: 170px; object-fit: contain; cursor: zoom-in; }
+.exame-perfil-pdf {
+  padding: 24px; text-align: center; font-size: 13px; color: var(--muted);
+}
+.exame-perfil-pdf a { color: var(--purple-mid); font-weight: 600; }
+.exame-perfil-actions { padding: 8px 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
 .cad-pac-modo-tabs {
   display: flex; gap: 0; padding: 0 20px 12px; border-bottom: 1px solid var(--border);
 }
@@ -1376,6 +1423,18 @@ button.metric-card:focus-visible {
             <option value="atencao">Em observação</option>
             <option value="critico">Crítico</option>
           </select>
+        </div>
+        <div class="cad-pac-field cad-pac-field--full">
+          <label>Foto do paciente (opcional)</label>
+          <div class="cad-pac-foto-row">
+            <img id="cadPacFotoPreview" class="cad-pac-foto-preview" style="display:none" alt="">
+            <div class="cad-pac-foto-actions">
+              <input type="file" id="cadPacFotoInput" class="cad-pac-foto-input-hidden" accept="image/jpeg,image/png,image/webp,image/gif" tabindex="-1" aria-hidden="true" onchange="onCadPacFotoFileChange(event)">
+              <button type="button" class="btn-outline" onclick="document.getElementById('cadPacFotoInput').click()">Escolher foto</button>
+              <button type="button" id="cadPacFotoRemoveBtn" class="btn-outline" style="display:none" onclick="limparFotoCadastroPaciente()">Remover foto</button>
+            </div>
+          </div>
+          <span class="cad-pac-hint">Aparece na lista, agenda e painel para o médico reconhecer o rosto (nesta demo fica só no navegador).</span>
         </div>
         <div class="cad-pac-field cad-pac-field--full" style="margin-top:4px;padding-top:16px;border-top:1px solid var(--border)">
           <div class="cad-pac-section-title">App do paciente · sincronizado com a clínica</div>
@@ -2282,13 +2341,172 @@ function patientInitials(nome) {
   return parts[0].slice(0,2).toUpperCase();
 }
 
+/** Escape para uso em atributo HTML (ex.: data URL de imagem) */
+function escAttrDataUrl(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+let cadPacFotoDataUrl = null;
+let examePacienteNextId = 9000;
+
 function patientAvatarHtml(p, size=34, fontSize=12) {
   const pal = avatarPalette[(p.id - 1) % avatarPalette.length];
   const ring = dotClass(p.status);
+  const foto = p.fotoUrl && String(p.fotoUrl).indexOf('data:image') === 0;
+  if (foto) {
+    return `<div class="pat-avatar pat-avatar--photo ring-${ring}" style="width:${size}px;height:${size}px;font-size:${fontSize}px">
+      <div class="status-ring"></div>
+      <img src="${escAttrDataUrl(p.fotoUrl)}" alt="" />
+    </div>`;
+  }
   return `<div class="pat-avatar ring-${ring}" style="width:${size}px;height:${size}px;background:${pal[0]};font-size:${fontSize}px">
     <div class="status-ring"></div>
     ${patientInitials(p.nome)}
   </div>`;
+}
+
+function onCadPacFotoFileChange(ev) {
+  const f = ev.target && ev.target.files && ev.target.files[0];
+  if (!f) return;
+  if (!f.type.startsWith('image/')) {
+    alert('Selecione um arquivo de imagem (JPG, PNG, WebP ou GIF).');
+    return;
+  }
+  if (f.size > 1.5 * 1024 * 1024) {
+    alert('Imagem muito grande. Use até 1,5 MB nesta demonstração.');
+    limparFotoCadastroPaciente();
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    cadPacFotoDataUrl = String(reader.result || '');
+    const prev = document.getElementById('cadPacFotoPreview');
+    const rm = document.getElementById('cadPacFotoRemoveBtn');
+    if (prev) {
+      prev.src = cadPacFotoDataUrl;
+      prev.style.display = 'block';
+    }
+    if (rm) rm.style.display = 'inline-block';
+  };
+  reader.readAsDataURL(f);
+}
+
+function limparFotoCadastroPaciente() {
+  cadPacFotoDataUrl = null;
+  const inp = document.getElementById('cadPacFotoInput');
+  const prev = document.getElementById('cadPacFotoPreview');
+  const rm = document.getElementById('cadPacFotoRemoveBtn');
+  if (inp) inp.value = '';
+  if (prev) {
+    prev.removeAttribute('src');
+    prev.style.display = 'none';
+  }
+  if (rm) rm.style.display = 'none';
+}
+
+function onPerfilFotoSelecionada(pacienteId, ev) {
+  const f = ev.target && ev.target.files && ev.target.files[0];
+  if (!f) return;
+  if (!f.type.startsWith('image/')) {
+    alert('Selecione uma imagem.');
+    return;
+  }
+  if (f.size > 1.5 * 1024 * 1024) {
+    alert('Imagem muito grande (máx. 1,5 MB nesta demo).');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const p = pacientes.find(x => x.id === pacienteId);
+    if (!p) return;
+    p.fotoUrl = String(reader.result || '');
+    if (paginaAtiva === 'pacientes') renderPacientesPage();
+    if (paginaAtiva === 'agenda') renderAgendaPage();
+    if (paginaAtiva === 'painel') renderPainelPage();
+    renderSideCol();
+    renderDetalhePage(pacienteId);
+  };
+  reader.readAsDataURL(f);
+}
+
+function removerFotoPaciente(pacienteId) {
+  const p = pacientes.find(x => x.id === pacienteId);
+  if (!p) return;
+  delete p.fotoUrl;
+  if (paginaAtiva === 'pacientes') renderPacientesPage();
+  if (paginaAtiva === 'agenda') renderAgendaPage();
+  if (paginaAtiva === 'painel') renderPainelPage();
+  renderSideCol();
+  renderDetalhePage(pacienteId);
+}
+
+function adicionarExamePerfilPaciente(pacienteId) {
+  const tituloInp = document.getElementById(`exameTitulo_${pacienteId}`);
+  const origInp = document.getElementById(`exameOrigem_${pacienteId}`);
+  const fileInp = document.getElementById(`exameFile_${pacienteId}`);
+  const titulo = (tituloInp && tituloInp.value ? tituloInp.value : '').trim() || 'Exame';
+  const origem = (origInp && origInp.value) || 'clinica';
+  const f = fileInp && fileInp.files && fileInp.files[0];
+  if (!f) {
+    alert('Escolha um arquivo (foto ou PDF).');
+    return;
+  }
+  const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+  const isImg = f.type.startsWith('image/');
+  if (!isPdf && !isImg) {
+    alert('Envie uma imagem ou um arquivo PDF.');
+    return;
+  }
+  if (f.size > 2.5 * 1024 * 1024) {
+    alert('Arquivo muito grande (máx. 2,5 MB nesta demonstração).');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const p = pacientes.find(x => x.id === pacienteId);
+    if (!p) return;
+    garantirModeloPaciente(p);
+    const dataHist = new Date().toLocaleString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    const mime = isPdf ? 'application/pdf' : (f.type || 'image/jpeg');
+    p.examesArquivos.unshift({
+      id: examePacienteNextId++,
+      titulo,
+      nomeArquivo: f.name,
+      mime,
+      dataUrl: reader.result,
+      origem,
+      dataRegistro: dataHist,
+    });
+    const quem = origem === 'paciente' ? 'Paciente (app/recepção)' : 'Clínica';
+    p.historico.unshift({
+      data: dataHist,
+      tipo: 'green',
+      msg: `Exame registrado (${quem}): ${titulo}`,
+    });
+    if (fileInp) fileInp.value = '';
+    if (tituloInp) tituloInp.value = '';
+    renderDetalhePage(pacienteId);
+  };
+  reader.onerror = () => alert('Não foi possível ler o arquivo.');
+  reader.readAsDataURL(f);
+}
+
+function removerExamePerfilPaciente(pacienteId, exameId) {
+  if (!confirm('Remover este exame da ficha?')) return;
+  const p = pacientes.find(x => x.id === pacienteId);
+  if (!p) return;
+  garantirModeloPaciente(p);
+  p.examesArquivos = p.examesArquivos.filter(x => x.id !== exameId);
+  renderDetalhePage(pacienteId);
+}
+
+function abrirExamePacienteNovaAba(pacienteId, exameId) {
+  const p = pacientes.find(x => x.id === pacienteId);
+  const ex = p && p.examesArquivos && p.examesArquivos.find(x => x.id === exameId);
+  if (!ex || !ex.dataUrl) return;
+  window.open(ex.dataUrl, '_blank', 'noopener,noreferrer');
 }
 
 let filtroAtivo = 'todos';
@@ -2485,6 +2703,7 @@ function submitVinculoTitular() {
     ],
     msgs: [],
     anotacoesConsultas: [],
+    examesArquivos: [],
     vinculoApp: {
       estado: 'pendente',
       codigoInformado: code,
@@ -2651,6 +2870,7 @@ function openCadastroPacienteModal() {
   okEl.style.display = 'none';
   const f = document.getElementById('cadPacForm');
   if (f) f.reset();
+  limparFotoCadastroPaciente();
   const cv = document.getElementById('cadPacCodigoVinculo');
   const nv = document.getElementById('cadPacNotaVinculo');
   if (cv) cv.value = '';
@@ -2673,6 +2893,7 @@ function closeCadastroPacienteModal() {
   formEl.style.flexDirection = 'column';
   okEl.style.display = 'none';
   formEl.reset();
+  limparFotoCadastroPaciente();
   const cv = document.getElementById('cadPacCodigoVinculo');
   const nv = document.getElementById('cadPacNotaVinculo');
   if (cv) cv.value = '';
@@ -2747,7 +2968,10 @@ function submitCadastroPaciente() {
     ],
     msgs: [],
     anotacoesConsultas: [],
+    examesArquivos: [],
   };
+
+  if (cadPacFotoDataUrl) novo.fotoUrl = cadPacFotoDataUrl;
 
   if (syncApp) {
     novo.app = montarAppPacienteClinica(novoId, email, telefone);
@@ -2760,6 +2984,7 @@ function submitCadastroPaciente() {
 
   pacientes.push(novo);
   cadPacUltimoCadastrado = novo;
+  limparFotoCadastroPaciente();
   renderSidebar();
   if (paginaAtiva === 'pacientes') renderPacientesPage();
 
@@ -3287,6 +3512,7 @@ function renderDetalhePage(id) {
     { key:'corpo',      icon:'⚖️', label:'Corpo' },
     { key:'medicacao',  icon:'💊', label:'Medicação' },
     { key:'historico',  icon:'📋', label:'Histórico' },
+    { key:'examesPaciente', icon:'🧪', label:'Exames' },
     { key:'contato',    icon:'📞', label:'Contato' },
   ];
 
@@ -3470,6 +3696,74 @@ function renderDetalhePage(id) {
     bodyHtml = subBar + mainContent;
   }
 
+  if (detalheCategoria === 'examesPaciente') {
+    if (vPendBody) {
+      bodyHtml = `<div class="empty-state" style="max-width:440px;margin:0 auto;text-align:center;line-height:1.55">
+        Exames e laudos do titular ficam disponíveis nesta aba após a aprovação do vínculo no app.
+        <div style="margin-top:14px"><button type="button" class="btn-primary" onclick="simularAceiteVinculoApp(${p.id})">Simular aceite no app (demo)</button></div>
+      </div>`;
+    } else {
+      garantirModeloPaciente(p);
+      const escE = t =>
+        String(t == null ? '' : t)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/"/g, '&quot;');
+      const cardsEx = p.examesArquivos.map(ex => {
+        const isPdf = ex.mime === 'application/pdf';
+        const prev = isPdf
+          ? `<div class="exame-perfil-pdf">📄 PDF<br><a href="${escAttrDataUrl(ex.dataUrl)}" download="${escE(ex.nomeArquivo)}">Baixar</a>
+            <br><button type="button" class="btn-outline" style="margin-top:8px;font-size:12px;padding:6px 10px" onclick="abrirExamePacienteNovaAba(${p.id},${ex.id})">Abrir em nova aba</button></div>`
+          : `<div class="exame-perfil-preview"><img src="${escAttrDataUrl(ex.dataUrl)}" alt="" onclick="abrirExamePacienteNovaAba(${p.id},${ex.id})" title="Abrir"/></div>`;
+        const origLabel = ex.origem === 'paciente' ? 'Paciente (app/recepção)' : 'Clínica / médico';
+        return `<div class="exame-perfil-card">
+          <div class="exame-perfil-card-head">
+            ${escE(ex.titulo)}
+            <div class="exame-perfil-card-meta">${escE(ex.dataRegistro)} · ${origLabel} · ${escE(ex.nomeArquivo)}</div>
+          </div>
+          ${prev}
+          <div class="exame-perfil-actions">
+            <button type="button" class="btn-outline" onclick="removerExamePerfilPaciente(${p.id},${ex.id})">Remover</button>
+          </div>
+        </div>`;
+      }).join('');
+      bodyHtml = `
+        <div class="panel" style="margin-bottom:14px">
+          <div class="panel-header">
+            <div class="panel-title">Incluir exame</div>
+            <div style="font-size:11px;color:var(--muted);font-weight:500">Imagens ou PDF — médico ou paciente (demo)</div>
+          </div>
+          <div style="padding:14px 16px 18px">
+            <div class="med-form-field">
+              <label class="med-form-label" for="exameTitulo_${p.id}">Título ou tipo</label>
+              <input class="med-form-input" type="text" id="exameTitulo_${p.id}" placeholder="Ex.: Hemograma, Raio‑X, Ecocardiograma…" maxlength="120" />
+            </div>
+            <div class="med-form-field">
+              <label class="med-form-label" for="exameOrigem_${p.id}">Origem</label>
+              <select class="med-form-select" id="exameOrigem_${p.id}">
+                <option value="clinica">Clínica / médico</option>
+                <option value="paciente">Paciente (app ou recepção)</option>
+              </select>
+            </div>
+            <div class="med-form-field">
+              <label class="med-form-label" for="exameFile_${p.id}">Arquivo (foto ou PDF)</label>
+              <input class="med-form-input" type="file" id="exameFile_${p.id}" accept="image/*,application/pdf" />
+            </div>
+            <button type="button" class="btn-primary" onclick="adicionarExamePerfilPaciente(${p.id})">Anexar à ficha</button>
+            <p class="cad-pac-hint" style="margin-top:12px;margin-bottom:0">Nesta demonstração os ficheiros ficam só no navegador (base64). Em produção use armazenamento cifrado e LGPD.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Exames na ficha (${p.examesArquivos.length})</div>
+          </div>
+          <div style="padding:14px 16px 18px">
+            ${p.examesArquivos.length ? `<div class="exame-perfil-grid">${cardsEx}</div>` : '<div class="empty-state" style="padding:16px">Nenhum exame anexado ainda.</div>'}
+          </div>
+        </div>`;
+    }
+  }
+
   if (detalheCategoria === 'contato') {
     if (pacienteVinculoPendente(p)) {
       const v = p.vinculoApp;
@@ -3521,7 +3815,24 @@ function renderDetalhePage(id) {
           </div>
         </div>`
       : '';
+    const fotoCarteiraPanel = `
+      <div class="panel" style="margin-bottom:14px">
+        <div class="panel-header">
+          <div class="panel-title">Foto na carteira</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:500">Aparece na lista de pacientes e na agenda</div>
+        </div>
+        <div style="padding:14px 16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+          <div style="flex-shrink:0">${patientAvatarHtml(p, 80, 22)}</div>
+          <div style="min-width:200px;flex:1">
+            <input type="file" id="perfilFotoInput_${p.id}" accept="image/*" style="display:none" onchange="onPerfilFotoSelecionada(${p.id},event)" />
+            <button type="button" class="btn-outline" onclick="document.getElementById('perfilFotoInput_${p.id}').click()">Trocar foto</button>
+            ${p.fotoUrl && String(p.fotoUrl).indexOf('data:image') === 0 ? `<button type="button" class="btn-outline" onclick="removerFotoPaciente(${p.id})">Remover foto</button>` : ''}
+            <p class="cad-pac-hint" style="margin-top:8px;margin-bottom:0">Ajuda o médico a reconhecer o paciente nos cards (demo: arquivo só neste navegador).</p>
+          </div>
+        </div>
+      </div>`;
     bodyHtml = `
+      ${fotoCarteiraPanel}
       ${appBlock}
       <div class="cards-grid">
         ${infoCards.map(c => `
@@ -4364,6 +4675,7 @@ function dismissAlert(id) {
 function garantirModeloPaciente(p) {
   if (!p) return;
   if (!Array.isArray(p.anotacoesConsultas)) p.anotacoesConsultas = [];
+  if (!Array.isArray(p.examesArquivos)) p.examesArquivos = [];
 }
 
 function encontrarSlotAgenda(agendaId) {
