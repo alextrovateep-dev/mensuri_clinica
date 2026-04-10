@@ -2,6 +2,18 @@
 
 Este documento descreve **o que o produto pretende fazer**, **como as partes se relacionam** e **como a integração com o app mobile** se encaixa. O HTML em `index.html` nesta pasta é um **protótipo de demonstração** (dados em memória); o comportamento real dependerá de backend, autenticação e APIs.
 
+### Natureza do produto: TeepSaude como **SaaS** (sistema futuro)
+
+O ecossistema TeepSaude — **servidor**, **APIs**, **aplicativo do titular**, **painéis web** (clínica e, quando existir, área pessoal) — está especificado e será ofertado como **SaaS** (*Software as a Service*), ou seja:
+
+- **Hospedagem e operação** pela empresa provedora (nuvem), não instalação on-premise por padrão;
+- **Acesso** via internet (web e app), com autenticação e políticas de segurança definidas no contrato;
+- **Atualizações de produto** centralizadas para todos os clientes, com roadmap comum;
+- **Dados** do titular e **configurações** das organizações (ex.: clínicas) mantidos em infraestrutura do serviço, com **isolamento lógico** entre **tenants** (multi-tenant), conforme LGPD e termos de uso;
+- **Modelo comercial** típico de SaaS: assinatura, licença por organização/usuário ou consumo — a definir comercialmente.
+
+Este documento refere-se a esse **sistema futuro** enquanto produto **SaaS**. O protótipo em `index.html` **não** constitui o SaaS em si: apenas simula telas; a camada de serviço real será backend, filas, identidade e APIs descritas nas seções seguintes.
+
 ---
 
 ## 1. Cenário central: dados no SaaS e vínculo explícito
@@ -106,6 +118,7 @@ Limitações explícitas da demo: sem API real, sem multi-tenant, sem fila de �
 
 | Termo | Uso |
 |--------|-----|
+| **SaaS (Software as a Service)** | Modelo em que o TeepSaude é **fornecido como serviço na nuvem**: o cliente usa app e painéis via internet; infraestrutura, atualizações e persistência ficam com o provedor, no marco contratual e legal (LGPD). |
 | **Titular** | Dono da conta e dos dados de saúde no SaaS. |
 | **Conta** | Identidade no TeepSaude (login + dados associados). |
 | **Grupo / organização** | Clínica, família, etc., que pode gerenciar titulares **vinculados**. |
