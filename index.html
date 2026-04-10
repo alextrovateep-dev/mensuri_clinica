@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VitaClinic — Painel Clínico</title>
+<title>TeepSaude — Painel Clínico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -41,27 +41,37 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   width: var(--sidebar); background: var(--white);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column; flex-shrink: 0;
-  padding: 20px 0 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 0 0 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
 }
-.sidebar-logo { padding: 0 16px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-.brand-logo-img {
-  display: block;
-  max-width: 100%;
-  max-height: 48px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  object-position: left center;
+.sidebar-logo {
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 12px;
 }
+.sidebar-logo-banner {
+  width: 100%;
+  height: 112px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.brand-logo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+.sidebar-logo-text { padding: 0 16px; }
 .logo-name { font-size: 15px; font-weight: 600; color: var(--purple); }
 .logo-sub  { font-size: 10px; color: var(--muted); margin-top: 1px; }
 .topbar-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .topbar-logo-img {
   display: none;
-  height: 34px;
+  height: 40px;
   width: auto;
-  max-width: 100px;
+  max-width: 160px;
   object-fit: contain;
   object-position: left center;
   flex-shrink: 0;
@@ -408,13 +418,13 @@ button.metric-card:focus-visible {
 .alertas-main-panel {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
 }
-.alertas-panel-body { padding: 0 0 8px; }
-.alertas-section { margin-bottom: 4px; }
+.alertas-panel-body { padding: 0; }
+.alertas-section { margin-bottom: 0; }
 .alertas-section-head {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 14px 20px 10px; border-top: 1px solid var(--border);
+  padding: 14px 20px 8px; border-top: 1px solid var(--border);
 }
-.alertas-section:first-of-type .alertas-section-head { border-top: none; padding-top: 6px; }
+.alertas-section:first-of-type .alertas-section-head { border-top: none; padding-top: 10px; }
 .alertas-section-title {
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
   display: flex; align-items: center; gap: 8px;
@@ -424,61 +434,62 @@ button.metric-card:focus-visible {
 .alertas-section-count {
   font-size: 12px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums;
 }
-.alertas-section-list { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 10px; }
-.alert-page-item {
-  display: flex; gap: 14px; align-items: center;
-  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 14px 16px 14px 12px; transition: box-shadow 0.15s, border-color 0.15s; cursor: pointer;
-  position: relative; overflow: hidden;
-}
-.alert-page-item::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: var(--radius) 0 0 var(--radius);
-}
-.alert-page-item--crit::before { background: var(--red); }
-.alert-page-item--warn::before { background: var(--amber); }
-.alert-page-item:nth-child(even) { background: rgba(248, 247, 252, 0.65); }
-.alert-page-item:hover {
-  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
-  border-color: rgba(124, 58, 237, 0.18);
-  background: var(--white);
-}
-.alert-page-icon-wrap { flex-shrink: 0; }
+.alert-page-icon-wrap { flex-shrink: 0; display: flex; align-items: center; }
 .alert-page-icon {
-  width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  font-size: 18px; line-height: 1;
+  width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1;
 }
 .alert-page-icon.red   { background: var(--red-light); }
 .alert-page-icon.amber { background: var(--amber-light); }
-.alert-page-main { flex: 1; min-width: 0; }
-.alert-page-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-bottom: 6px; }
 .alert-sev-pill {
   font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
   padding: 3px 8px; border-radius: 6px; flex-shrink: 0;
 }
 .alert-sev-pill--crit { background: var(--red-light); color: var(--red); }
 .alert-sev-pill--warn { background: var(--amber-light); color: var(--amber); }
-.alert-page-msg { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; letter-spacing: -0.01em; }
-.alert-page-patient {
-  font-size: 12px; font-weight: 600; color: var(--purple); margin-top: 4px; cursor: pointer;
-}
-.alert-page-patient:hover { text-decoration: underline; }
-.alert-page-detalhe { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
-.alert-page-actions {
-  display: flex; flex-direction: column; align-items: stretch; gap: 6px; flex-shrink: 0;
-}
-.alert-page-actions .msg-btn,
-.alert-page-actions .action-btn,
-.alert-page-actions .dismiss-btn { min-width: 92px; text-align: center; justify-content: center; }
-.alert-page-actions .action-btn {
-  font-size: 11px; font-weight: 500; color: var(--purple); border: 1px solid var(--purple-mid);
-  background: var(--white); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: all 0.1s;
-}
-.alert-page-actions .action-btn:hover { background: var(--purple-light); }
 .dismiss-btn {
   font-size: 11px; font-weight: 500; color: var(--muted); border: 1px solid var(--border); background: var(--white);
   border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: all 0.1s; white-space: nowrap;
 }
 .dismiss-btn:hover { background: var(--bg); color: var(--text); border-color: var(--purple-mid); }
+/* Alertas + Agenda: mesma lista em linha que a fila do dashboard */
+#page-alertas .alertas-main-panel.dash-queue-panel,
+#page-agenda .agenda-main-panel.dash-queue-panel {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+#page-alertas .dash-queue-panel .panel-header,
+#page-agenda .dash-queue-panel .panel-header {
+  padding: 16px 20px; align-items: flex-start;
+}
+#page-alertas .dash-queue-item .dismiss-btn {
+  padding: 6px 11px; font-size: 11px;
+}
+#page-alertas .dash-queue-item .action-btn {
+  font-size: 11px; font-weight: 500; color: var(--purple); border: 1px solid var(--purple-mid);
+  background: var(--white); border-radius: 8px; padding: 6px 11px; cursor: pointer; transition: all 0.1s;
+}
+#page-alertas .dash-queue-item .action-btn:hover { background: var(--purple-light); }
+#page-alertas .dash-queue-alert-msg {
+  font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35;
+  flex: 1 1 180px; min-width: 0;
+}
+#page-alertas .dash-queue-item:nth-child(even),
+#page-agenda .dash-queue-item:nth-child(even) { background: rgba(248, 247, 252, 0.85); }
+#page-alertas .dash-queue-item:hover,
+#page-agenda .dash-queue-item:hover { background: var(--bg); }
+#page-agenda .agenda-row-time {
+  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--purple);
+  min-width: 44px; flex-shrink: 0;
+}
+#page-agenda .dash-queue-item .agenda-card-badge { margin-left: 0; }
+#page-agenda .agenda-inline-app {
+  font-size: 10px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.04em;
+}
+#page-agenda .dash-queue-item .action-btn {
+  font-size: 11px; font-weight: 500; color: var(--purple); border: 1px solid var(--purple-mid);
+  background: var(--white); border-radius: 8px; padding: 6px 11px; cursor: pointer; transition: all 0.1s;
+}
+#page-agenda .dash-queue-item .action-btn:hover { background: var(--purple-light); }
 .alertas-empty-section {
   padding: 20px 20px 8px; text-align: center; font-size: 13px; color: var(--muted); line-height: 1.45;
 }
@@ -493,22 +504,26 @@ button.metric-card:focus-visible {
 .alertas-zero-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
 @media (max-width: 900px) {
   #page-alertas .metrics-row.metrics-row--alertas { grid-template-columns: 1fr; }
-  .alert-page-item { flex-wrap: wrap; align-items: flex-start; }
-  .alert-page-actions {
-    flex-direction: row; flex-wrap: wrap; width: 100%; justify-content: flex-end; margin-top: 4px;
-    padding-left: 54px;
+  #page-alertas .dash-queue-item { flex-wrap: wrap; align-items: flex-start; }
+  #page-alertas .dash-queue-actions {
+    width: 100%; justify-content: flex-end; margin-top: 6px; padding-left: 50px;
   }
-  .alert-page-actions .msg-btn,
-  .alert-page-actions .action-btn,
-  .alert-page-actions .dismiss-btn { min-width: auto; flex: 1; }
 }
 @media (max-width: 480px) {
-  .alertas-section-list { padding: 0 12px 12px; }
-  .alert-page-actions { padding-left: 0; }
+  #page-alertas .dash-queue-actions { padding-left: 0; }
+  #page-agenda .dash-queue-actions { width: 100%; justify-content: flex-end; margin-top: 6px; }
 }
 
 /* ── PAGE AGENDA ── */
 .agenda-day-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin: 18px 0 8px; }
+#page-agenda .agenda-day-section .agenda-day-label {
+  margin: 0;
+  padding: 14px 20px 6px;
+}
+#page-agenda .agenda-day-section + .agenda-day-section .agenda-day-label {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
 #page-agenda .metrics-row.metrics-row--agenda {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
@@ -530,7 +545,6 @@ button.metric-card:focus-visible {
 #page-agenda .metrics-row.metrics-row--agenda .metric-label { font-size: 9px; letter-spacing: 0.06em; }
 #page-agenda .metrics-row.metrics-row--agenda .metric-value { font-size: 24px; line-height: 1.05; }
 #page-agenda .metrics-row.metrics-row--agenda .metric-sub { font-size: 10px; line-height: 1.3; }
-.agenda-card-avatar { flex-shrink: 0; }
 .agenda-sync-banner {
   display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; margin-bottom: 18px;
   background: linear-gradient(135deg, var(--purple-light) 0%, #eef2ff 100%);
@@ -539,38 +553,9 @@ button.metric-card:focus-visible {
 .agenda-sync-banner strong { color: var(--purple); font-weight: 600; }
 .agenda-sync-icon { font-size: 22px; flex-shrink: 0; line-height: 1; }
 .agenda-main-panel { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05); }
-.agenda-day-section { padding: 0 0 8px; }
-.agenda-day-section + .agenda-day-section { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px; }
-.agenda-card {
-  display: flex; gap: 12px; align-items: flex-start;
-  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 10px 14px; margin-bottom: 8px; cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s;
-  position: relative; overflow: hidden;
-  min-height: 72px;
-}
-.agenda-card::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--purple-mid);
-  opacity: 0.35; border-radius: var(--radius) 0 0 var(--radius);
-}
-.agenda-card:hover {
-  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.08);
-  border-color: rgba(124, 58, 237, 0.2);
-}
-.agenda-card:nth-child(even) { background: rgba(248, 247, 252, 0.65); }
-.agenda-card:hover { background: var(--white); }
-.agenda-card-time {
-  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--purple);
-  min-width: 44px; flex-shrink: 0; padding-top: 2px;
-}
-.agenda-card-body { flex: 1; min-width: 0; }
-.agenda-card-name { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; line-height: 1.25; }
-.agenda-card-med { font-size: 11px; font-weight: 500; color: var(--purple); margin-top: 2px; }
-.agenda-card-type { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
-.agenda-card-app {
-  font-size: 9px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.05em;
-  margin-top: 4px; display: flex; align-items: center; gap: 4px;
-}
-.agenda-card-badge { margin-left: auto; font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; align-self: flex-start; }
+.agenda-day-section { padding: 0; }
+.agenda-day-section + .agenda-day-section { border-top: 1px solid var(--border); margin-top: 0; padding-top: 0; }
+.agenda-card-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; display: inline-block; }
 .agenda-card-badge.realizado { background: var(--green-light); color: var(--green); }
 .agenda-card-badge.andamento { background: var(--amber-light); color: var(--amber); }
 .agenda-card-badge.agendado  { background: var(--blue-light);  color: var(--blue); }
@@ -595,8 +580,7 @@ button.metric-card:focus-visible {
   #page-agenda .metrics-row.metrics-row--agenda .metric-value { font-size: 22px; }
 }
 @media (max-width: 600px) {
-  .agenda-card { flex-wrap: wrap; }
-  .agenda-card-badge { margin-left: 0; margin-top: 4px; }
+  #page-agenda .dash-queue-item { flex-wrap: wrap; }
 }
 
 /* ── RELATÓRIOS ── */
@@ -1026,7 +1010,7 @@ button.metric-card:focus-visible {
 <script>
 const medico = {
   nome: 'Dr. Carlos Mendes', crm: 'CRM 54.321-SP',
-  especialidade: 'Cardiologia', avatar: '👨‍⚕️', clinica: 'VitaClinic',
+  especialidade: 'Cardiologia', avatar: '👨‍⚕️', clinica: 'TeepSaude',
 };
 
 const pacientes = [
@@ -1659,6 +1643,8 @@ function tryLogoFallback(img) {
     return;
   }
   img.style.display = 'none';
+  const banner = img.closest('.sidebar-logo-banner');
+  if (banner) banner.style.display = 'none';
 }
 
 /* ── SIDEBAR ── */
@@ -1674,9 +1660,13 @@ function renderSidebar() {
   };
   el.innerHTML = `
     <div class="sidebar-logo">
-      <img class="brand-logo-img" src="logo.png" alt="${medico.clinica}" onerror="tryLogoFallback(this)">
-      <div class="logo-name">${medico.clinica}</div>
-      <div class="logo-sub">Painel Clínico</div>
+      <div class="sidebar-logo-banner">
+        <img class="brand-logo-img" src="logo.png" alt="${medico.clinica}" onerror="tryLogoFallback(this)">
+      </div>
+      <div class="sidebar-logo-text">
+        <div class="logo-name">${medico.clinica}</div>
+        <div class="logo-sub">Painel Clínico</div>
+      </div>
     </div>
     <div class="nav-section-label">Principal</div>
     ${navPrincipal.map(navItem).join('')}
@@ -2660,28 +2650,25 @@ function setAlertasPageFiltro(f) {
 
 function alertPageItemHtml(a) {
   const pac = pacientes.find(p => p.id === a.pacienteId);
-  const itemSev = a.severity === 'red' ? 'crit' : 'warn';
   const pillClass = a.severity === 'red' ? 'alert-sev-pill--crit' : 'alert-sev-pill--warn';
   const pillLabel = a.severity === 'red' ? 'Crítico' : 'Aviso';
-  const itemClass = a.severity === 'red' ? 'alert-page-item--crit' : 'alert-page-item--warn';
   const avatarBlock = pac
-    ? `<div class="alert-page-icon-wrap">${patientAvatarHtml(pac, 40, 12)}</div>`
+    ? `<div class="alert-page-icon-wrap">${patientAvatarHtml(pac, 36, 12)}</div>`
     : `<div class="alert-page-icon-wrap"><div class="alert-page-icon ${a.severity === 'red' ? 'red' : 'amber'}">${a.icon}</div></div>`;
   return `
-    <div class="alert-page-item ${itemClass}" onclick="openDetalhe(${a.pacienteId})">
+    <div class="dash-queue-item" onclick="openDetalhe(${a.pacienteId})">
       ${avatarBlock}
-      <div class="alert-page-main">
-        <div class="alert-page-badges">
+      <div class="dash-queue-main">
+        <div class="dash-queue-line">
           <span class="alert-sev-pill ${pillClass}">${pillLabel}</span>
+          <span class="dash-queue-alert-msg">${a.msg}</span>
+          <span class="dash-queue-meta-text">${a.paciente} · ${a.detalhe}</span>
         </div>
-        <div class="alert-page-msg">${a.msg}</div>
-        <div class="alert-page-patient">${a.paciente}</div>
-        <div class="alert-page-detalhe">${a.detalhe}</div>
       </div>
-      <div class="alert-page-actions">
-        <button type="button" class="action-btn" onclick="event.stopPropagation();openDetalhe(${a.pacienteId})">Ver →</button>
-        <button type="button" class="msg-btn" onclick="event.stopPropagation();openMsgModal(${a.pacienteId})">✉ Msg</button>
+      <div class="dash-queue-actions">
+        <button type="button" class="msg-btn" title="Mensagem" onclick="event.stopPropagation();openMsgModal(${a.pacienteId})">✉</button>
         <button type="button" class="dismiss-btn" onclick="event.stopPropagation();dismissAlert(${a.id})">Dispensar</button>
+        <button type="button" class="action-btn" onclick="event.stopPropagation();openDetalhe(${a.pacienteId})">Ver →</button>
       </div>
     </div>`;
 }
@@ -2756,7 +2743,7 @@ function renderAlertasPage() {
           <span class="alertas-section-title">🚨 Alertas críticos</span>
           <span class="alertas-section-count">${criticos.length} no filtro</span>
         </div>
-        <div class="alertas-section-list">
+        <div class="dash-queue-list">
           ${criticos.length
             ? criticos.map(alertPageItemHtml).join('')
             : '<div class="alertas-empty-section">Nenhum alerta crítico com os critérios atuais.</div>'}
@@ -2770,7 +2757,7 @@ function renderAlertasPage() {
           <span class="alertas-section-title">⚠️ Avisos e monitoramento</span>
           <span class="alertas-section-count">${avisos.length} no filtro</span>
         </div>
-        <div class="alertas-section-list">
+        <div class="dash-queue-list">
           ${avisos.length
             ? avisos.map(alertPageItemHtml).join('')
             : '<div class="alertas-empty-section">Nenhum aviso com os critérios atuais.</div>'}
@@ -2780,11 +2767,11 @@ function renderAlertasPage() {
 
   document.getElementById('alertasPage').innerHTML = `
     ${metricsRow}
-    <div class="panel alertas-main-panel">
+    <div class="panel alertas-main-panel dash-queue-panel">
       <div class="panel-header">
         <div>
           <div class="panel-title">Triagem de alertas</div>
-          <div class="pacientes-page-hint">Escolha um cartão acima (Críticos, Avisos ou Todos). Clique num alerta para abrir o prontuário ou dispensar após resolução.</div>
+          <div class="dash-queue-hint">Lista em linhas como na fila do dashboard. <strong>✉</strong> mensagem · <strong>Dispensar</strong> · <strong>Ver →</strong> prontuário.</div>
         </div>
       </div>
       <div class="alertas-panel-body">${blockCrit}${blockWarn}</div>
@@ -2809,20 +2796,27 @@ function setAgendaPageFiltro(f) {
 function agendaCardHtml(c) {
   const badgeLabel = { realizado:'Realizado', andamento:'Em andamento', agendado:'Agendado' };
   const pac = (c.pacienteId && pacientes.find(x => x.id === c.pacienteId)) || pacientes.find(x => x.nome === c.paciente);
-  const openAct = pac ? `onclick="openDetalhe(${pac.id})"` : '';
-  const appRow = c.syncApp !== false
-    ? '<div class="agenda-card-app">📱 App paciente</div>' : '';
+  const badge = `<span class="agenda-card-badge ${c.badge}">${badgeLabel[c.badge] || c.badge}</span>`;
+  const appChip = c.syncApp !== false ? '<span class="agenda-inline-app">📱 App</span>' : '';
+  const meta = `${c.medico || medico.nome} · ${c.tipo}`;
+  const rowOpen = pac ? `onclick="openDetalhe(${pac.id})"` : '';
+  const avatarEl = pac ? patientAvatarHtml(pac, 36, 12) : '';
+  const verBtn = pac
+    ? `<button type="button" class="action-btn" onclick="event.stopPropagation();openDetalhe(${pac.id})">Ver →</button>`
+    : '';
   return `
-    <div class="agenda-card" ${openAct}>
-      <div class="agenda-card-time">${c.hora}</div>
-      ${pac ? `<div class="agenda-card-avatar">${patientAvatarHtml(pac, 36, 11)}</div>` : ''}
-      <div class="agenda-card-body">
-        <div class="agenda-card-name">${c.paciente}</div>
-        <div class="agenda-card-med">${c.medico || medico.nome}</div>
-        <div class="agenda-card-type">${c.tipo}</div>
-        ${appRow}
+    <div class="dash-queue-item" ${rowOpen}>
+      <div class="agenda-row-time">${c.hora}</div>
+      ${avatarEl}
+      <div class="dash-queue-main">
+        <div class="dash-queue-line">
+          <span class="dash-queue-name">${c.paciente}</span>
+          ${badge}
+          <span class="dash-queue-meta-text">${meta}</span>
+          ${appChip}
+        </div>
       </div>
-      <span class="agenda-card-badge ${c.badge}">${badgeLabel[c.badge] || c.badge}</span>
+      <div class="dash-queue-actions">${verBtn}</div>
     </div>`;
 }
 
@@ -2849,18 +2843,22 @@ function renderAgendaPage() {
   const blocoHoje = showBlocoHoje
     ? `<div class="agenda-day-section">
         <div class="agenda-day-label">${labelHoje}</div>
-        ${hojeFiltrado.length
-          ? hojeFiltrado.map(agendaCardHtml).join('')
-          : `<div class="empty-state">${agendaPageFiltro === 'andamento' ? 'Nenhuma consulta em andamento neste momento.' : 'Nenhum horário para hoje.'}</div>`}
+        <div class="dash-queue-list">
+          ${hojeFiltrado.length
+            ? hojeFiltrado.map(agendaCardHtml).join('')
+            : `<div class="empty-state" style="padding:20px">${agendaPageFiltro === 'andamento' ? 'Nenhuma consulta em andamento neste momento.' : 'Nenhum horário para hoje.'}</div>`}
+        </div>
       </div>`
     : '';
 
   const blocoAmanha = showBlocoAmanha
     ? `<div class="agenda-day-section">
         <div class="agenda-day-label">Amanhã — ${dateStringOffset(1)}</div>
-        ${amanha.length
-          ? amanha.map(agendaCardHtml).join('')
-          : '<div class="empty-state">Nenhum horário para amanhã.</div>'}
+        <div class="dash-queue-list">
+          ${amanha.length
+            ? amanha.map(agendaCardHtml).join('')
+            : '<div class="empty-state" style="padding:20px">Nenhum horário para amanhã.</div>'}
+        </div>
       </div>`
     : '';
 
@@ -2869,7 +2867,7 @@ function renderAgendaPage() {
       <span class="agenda-sync-icon">📱</span>
       <div>
         <strong>Mesma agenda no celular do paciente.</strong>
-        O que você agenda aqui (ou pelo perfil) reflete no app VitaClinic do paciente: lembretes, confirmação e aviso de alterações — quando a sincronização estiver ligada no ambiente real.
+        O que você agenda aqui (ou pelo perfil) reflete no app TeepSaude do paciente: lembretes, confirmação e aviso de alterações — quando a sincronização estiver ligada no ambiente real.
       </div>
     </div>
     <div class="metrics-row metrics-row--agenda">
@@ -2898,11 +2896,11 @@ function renderAgendaPage() {
         <div class="metric-sub">Agora (hoje)</div>
       </button>
     </div>
-    <div class="panel agenda-main-panel">
+    <div class="panel agenda-main-panel dash-queue-panel">
       <div class="panel-header">
         <div>
           <div class="panel-title">Agenda da clínica</div>
-          <div class="pacientes-page-hint">Filtre pelos <strong>cartões acima</strong>. Use <strong>Novo agendamento</strong> ou <strong>Agendar</strong> no perfil do paciente.</div>
+          <div class="dash-queue-hint">Lista em linhas como a <strong>fila do dia</strong>. Filtre pelos cartões acima · <strong>Novo agendamento</strong> ou <strong>Agendar</strong> no perfil.</div>
         </div>
         <button type="button" class="btn-primary" onclick="openAgendaModal()">+ Novo agendamento</button>
       </div>
